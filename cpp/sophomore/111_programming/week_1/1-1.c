@@ -1,9 +1,7 @@
-#include<cstdio>
-
+#include<stdio.h>
 
 int main()
 {
-  freopen("output.txt", "w", stdout);
   printf("Taipei, Taiwan\n"
         "CNN\n"
         " -- \n" 
