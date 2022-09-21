@@ -52,7 +52,7 @@ class Node {
     return next;
   }
 
-  //回傳上一個node
+  //回傳下一個node
   Node<T>* getPrev()
   {
     return prev;
@@ -88,13 +88,11 @@ class LinkedList {
    */
   void addToTail(T data)
   {
-    //linkedlist為空的情形
     if(tail == nullptr)
     {
     tail = new Node<T>(data);
     head = tail;
     }
-    //已經存在Node
     else {
       Node<T> *new_tail = new Node<T>(data);
       tail->setTail(new_tail);
@@ -109,13 +107,11 @@ class LinkedList {
    */
   void addToHead(T data)
   {
-    //linkedlist為空的情形
     if(head == nullptr)
     {
     head = new Node<T>(data);
     tail = head;
     }
-    //已經存在Node
     else {
       Node<T> *new_head = new Node<T>(data);
       head->setHead(new_head);
@@ -151,8 +147,7 @@ class LinkedList {
         {
           tail = iter->getPrev();
         }
-
-        //刪除此node
+        
         delete iter;
 
         //任務完成
@@ -177,7 +172,22 @@ class LinkedList {
     {
       deleteData(data);
     }
-  } 
+  }
+
+  T getfront()
+  {
+    return head->getData();
+  }
+
+  T getend()
+  {
+    return tail->getData();
+  }
+
+  bool isEmpty()
+  {
+    return head == nullptr ? true : false;
+  }
 
   /**
    * Overload the operator << to print out all the data in the linked list from the head
@@ -210,4 +220,75 @@ class LinkedList {
   private: 
     Node<T> *head = nullptr;
     Node<T> *tail = nullptr;
+};
+
+template<class T>
+class Stack
+{
+  public:
+
+  /**
+   * Construct a new Stack object with no parameter
+   */
+  Stack()
+  {
+    list = new LinkedList<T>;
+  }
+
+  /**
+   * Add a data to stack
+   * @param data: data to be added to stack
+   */
+  void push(T data)
+  {
+    list->addToHead(data);
+    list_size++;
+  }
+
+  /**
+   * Remove a data from stack and return it
+   * @return the data removed from stack
+   */
+  T pop()
+  {
+    T buf = list->getfront();
+    list->deleteData(buf);
+    list_size--;
+    return buf;
+  }
+
+  /**
+   * @return the last element in the stack
+   */
+  T top()
+  {
+    return list->getfront();
+  }
+
+  /**
+   * @return true if stack is empty, false otherwise
+   */
+  bool isEmpty()
+  {
+    return list->isEmpty();
+  }
+
+  /**
+   * @return the size of the stack
+   */
+  int size()
+  {
+    return list_size;
+  }
+
+  friend std::ostream &operator<<(std::ostream &out, Stack * n)
+  {
+    out << n->list;
+
+    return out;
+  }
+
+  private: 
+    LinkedList<T> *list;
+    int list_size = 0;
 };

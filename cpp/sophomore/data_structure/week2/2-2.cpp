@@ -52,7 +52,7 @@ class Node {
     return next;
   }
 
-  //回傳上一個node
+  //回傳下一個node
   Node<T>* getPrev()
   {
     return prev;
@@ -88,13 +88,11 @@ class LinkedList {
    */
   void addToTail(T data)
   {
-    //linkedlist為空的情形
     if(tail == nullptr)
     {
     tail = new Node<T>(data);
     head = tail;
     }
-    //已經存在Node
     else {
       Node<T> *new_tail = new Node<T>(data);
       tail->setTail(new_tail);
@@ -109,13 +107,11 @@ class LinkedList {
    */
   void addToHead(T data)
   {
-    //linkedlist為空的情形
     if(head == nullptr)
     {
     head = new Node<T>(data);
     tail = head;
     }
-    //已經存在Node
     else {
       Node<T> *new_head = new Node<T>(data);
       head->setHead(new_head);
@@ -151,8 +147,7 @@ class LinkedList {
         {
           tail = iter->getPrev();
         }
-
-        //刪除此node
+        
         delete iter;
 
         //任務完成
@@ -177,7 +172,22 @@ class LinkedList {
     {
       deleteData(data);
     }
-  } 
+  }
+
+  T getfront()
+  {
+    return head->getData();
+  }
+
+  T getend()
+  {
+    return tail->getData();
+  }
+
+  bool isEmpty()
+  {
+    return head == nullptr ? true : false;
+  }
 
   /**
    * Overload the operator << to print out all the data in the linked list from the head
@@ -210,4 +220,64 @@ class LinkedList {
   private: 
     Node<T> *head = nullptr;
     Node<T> *tail = nullptr;
+};
+
+template<class T>
+class Queue
+{
+  public:
+
+  /**
+   * Construct a new Queue object with no parameter
+   */
+  Queue()
+  {
+    list = new LinkedList<T>;
+  }
+
+  /**
+   * Add a data to queue
+   * @param data: data to be added to queue
+   */
+  void enqueue(T data)
+  {
+    list->addToTail(data);
+  }
+
+  /**
+   * Remove a data from queue and return it
+   * @return the data removed from queue
+   */
+  T dequeue()
+  {
+    T buf = list->getfront();
+    list->deleteData(buf);
+    return buf;
+  }
+
+  /**
+   * @return the first element in the queue
+   */
+  T front()
+  {
+    return list->getfront();
+  }
+
+  /**
+   * @return true if queue is empty, false otherwise
+   */
+  bool isEmpty()
+  {
+    return list->isEmpty();
+  }
+
+  friend std::ostream &operator<<(std::ostream &out, Queue * n)
+  {
+    out << n->list;
+
+    return out;
+  }
+
+  private: 
+    LinkedList<T> *list = nullptr;
 };

@@ -172,7 +172,22 @@ class LinkedList {
     {
       deleteData(data);
     }
-  } 
+  }
+
+  T getfront()
+  {
+    return head->getData();
+  }
+
+  T getend()
+  {
+    return tail->getData();
+  }
+
+  bool isEmpty()
+  {
+    return head == nullptr ? true : false;
+  }
 
   /**
    * Overload the operator << to print out all the data in the linked list from the head
@@ -207,52 +222,111 @@ class LinkedList {
     Node<T> *tail = nullptr;
 };
 
+template<class T>
+class Stack
+{
+  public:
+
+  /**
+   * Construct a new Stack object with no parameter
+   */
+  Stack()
+  {
+    list = new LinkedList<T>;
+  }
+
+  /**
+   * Add a data to stack
+   * @param data: data to be added to stack
+   */
+  void push(T data)
+  {
+    list->addToHead(data);
+    list_size++;
+  }
+
+  /**
+   * Remove a data from stack and return it
+   * @return the data removed from stack
+   */
+  T pop()
+  {
+    T buf = list->getfront();
+    list->deleteData(buf);
+    list_size--;
+    return buf;
+  }
+
+  /**
+   * @return the last element in the stack
+   */
+  T top()
+  {
+    return list->getfront();
+  }
+
+  /**
+   * @return true if stack is empty, false otherwise
+   */
+  bool isEmpty()
+  {
+    return list->isEmpty();
+  }
+
+  /**
+   * @return the size of the stack
+   */
+  int size()
+  {
+    return list_size;
+  }
+
+  friend std::ostream &operator<<(std::ostream &out, Stack * n)
+  {
+    out << n->list;
+
+    return out;
+  }
+
+  private: 
+    LinkedList<T> *list;
+    int list_size = 0;
+};
+
 int main()
 {
-  LinkedList<int> *ptr = new LinkedList<int>;
+  Stack<int> *ptr = new Stack<int>;
 
-  /*ptr->deleteData(4);
+  ptr->push(1);
   std::cout << ptr;
-  ptr->deleteData(2);
+  std::cout << ptr->size() << "\n";
+  ptr->push(2);
   std::cout << ptr;
-  ptr->deleteData(3);
-  std::cout << ptr;*/
-
-  /*ptr->addToHead(1);
+  std::cout << ptr->size() << "\n";
+  ptr->push(3);
   std::cout << ptr;
-  ptr->addToTail(2);
+  std::cout << ptr->size() << "\n";
+  ptr->push(4);
   std::cout << ptr;
-  ptr->addToHead(3);
+  std::cout << ptr->size() << "\n";
+  ptr->push(5);
   std::cout << ptr;
-  ptr->addToTail(4);
+  std::cout << ptr->size() << "\n";
+  ptr->pop();
   std::cout << ptr;
-
-  ptr->deleteData(3);
-  ptr->deleteData(2);
-  ptr->deleteData(4);
-  ptr->deleteData(44);
-  std::cout << ptr;*/
-
-  ptr->addToHead(1);
-  ptr->addToHead(1);
-  ptr->addToHead(1);
-  ptr->addToHead(1);
-  ptr->addToHead(1);
+  std::cout << ptr->size() << "\n";
+  ptr->pop();
   std::cout << ptr;
-  ptr->deleteData(1);
+  std::cout << ptr->size() << "\n";
+  ptr->pop();
   std::cout << ptr;
-  ptr->addToTail(4);
-  ptr->addToTail(4);
-  ptr->addToTail(4);
-  ptr->addToTail(4);
-  ptr->addToTail(4);
+  std::cout << ptr->size() << "\n";
+  ptr->pop();
   std::cout << ptr;
-  ptr->deleteData(4);
+  std::cout << ptr->size() << "\n";
+  ptr->pop();
   std::cout << ptr;
-  ptr->addToHead(5);
-  std::cout << ptr;
-  ptr->deleteData(5);
-  std::cout << ptr;
-  ptr->addToHead(1);
-  std::cout << ptr;
+  ptr->push(1);
+  std::cout << ptr->isEmpty() << std::endl;
+  std::cout << ptr->top() << std::endl;
 }
