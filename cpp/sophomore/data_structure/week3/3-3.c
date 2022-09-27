@@ -144,116 +144,50 @@ void display(struct Node *head)
     printf(")\n");
 }
 
-/*
-    function enqueue will insert a data into queue
-    parameter queue represent the queue
-    parameter data represent the data to be insert
-*/
-void enqueue(struct Node **queue, int data)
+void push(struct Node **stack, int data)
 {
-  addToTail(queue, data);
+    addToHead(stack, data);
 }
 /*
-    function dequeue will remove a data from queue
-    parameter queue represent the queue
+    function dequeue will remove a data from stack
+    parameter stack represent the stack
     this function should return the data that be removed
 */
-int dequeue(struct Node **queue)
+int pop(struct Node **stack)
 {
-  int num = (*queue)->data;
-  deleteData(queue, num);
-  return num;
+    int num = (*stack)->data;
+    deleteData(stack, num);
+    return num;
 }
 /*
-    function front will give the next remove data in the given queue
-    parameter queue represent the queue
+    function top will give the next remove data in the given stack
+    parameter stack represent the stack
     this function should return the next remove data
 */
-int front(struct Node *queue)
+int top(struct Node *stack)
 {
-  return queue->data;
+    return stack->data;
 }
 /*
-    function isEmpty will determine if the given queue is empty or not
-    parameter queue represent the queue
-    this function should return 1 if the given queue is empty, 0 if not
+    function isEmpty will determine if the given stack is empty or not
+    parameter stack represent the stack
+    this function should return 1 if the given stack is empty, 0 if not
 */
-int isEmpty(struct Node *queue)
+int isEmpty(struct Node *stack)
 {
-  return queue == NULL ? true : false;
+    return stack == NULL ? 1 : 0;
 }
-
-int main()
+/*
+    function size will give the number of data in the given stack
+    this function should return the number of data in the stack
+*/
+int size(struct Node *stack)
 {
-  struct Node *list;
-  struct Node **list_add = &list;
-  initLinkList(list_add);
-  display(list);
-
-  /*addToHead(list_add, 5);
-  display(list);
-  addToHead(list_add, 6);
-  display(list);
-  addToHead(list_add, 7);
-  display(list);
-  addToHead(list_add, 8);
-  display(list);
-  addToHead(list_add, 9);
-  display(list);*/
-
-  /*addToTail(list_add, 3);
-  display(list);
-  addToTail(list_add, 3);
-  display(list);
-  addToTail(list_add, 3);
-  display(list);
-
-  deleteData(list_add, 3);
-  display(list);
-  deleteData(list_add, 3);
-  display(list);
-  deleteData(list_add, 3);
-  display(list);
-  deleteData(list_add, 3);
-  display(list);*/
-
-  addToHead(list_add, 5);
-  display(list);
-  addToHead(list_add, 6);
-  display(list);
-  addToHead(list_add, 7);
-  display(list);
-
-  deleteData(list_add, 5);
-  display(list);
-  deleteData(list_add, 6);
-  display(list);
-  deleteData(list_add, 7);
-  display(list);
-  addToHead(list_add, 5);
-  display(list);
-  addToHead(list_add, 6);
-  display(list);
-  addToHead(list_add, 7);
-  display(list);
-
-  deleteData(list_add, 5);
-  display(list);
-  deleteData(list_add, 6);
-  display(list);
-  deleteData(list_add, 7);
-  display(list);
-  addToHead(list_add, 5);
-  display(list);
-  addToHead(list_add, 6);
-  display(list);
-  addToHead(list_add, 7);
-  display(list);
-
-  deleteData(list_add, 5);
-  display(list);
-  deleteData(list_add, 6);
-  display(list);
-  deleteData(list_add, 7);
-  display(list);
+    int count = 0;
+    while(stack != NULL)
+    {
+        stack = stack->next;
+        count++;
+    }
+    return count;
 }

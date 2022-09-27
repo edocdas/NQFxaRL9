@@ -144,53 +144,14 @@ void display(struct Node *head)
     printf(")\n");
 }
 
-/*
-    function enqueue will insert a data into queue
-    parameter queue represent the queue
-    parameter data represent the data to be insert
-*/
-void enqueue(struct Node **queue, int data)
-{
-  addToTail(queue, data);
-}
-/*
-    function dequeue will remove a data from queue
-    parameter queue represent the queue
-    this function should return the data that be removed
-*/
-int dequeue(struct Node **queue)
-{
-  int num = (*queue)->data;
-  deleteData(queue, num);
-  return num;
-}
-/*
-    function front will give the next remove data in the given queue
-    parameter queue represent the queue
-    this function should return the next remove data
-*/
-int front(struct Node *queue)
-{
-  return queue->data;
-}
-/*
-    function isEmpty will determine if the given queue is empty or not
-    parameter queue represent the queue
-    this function should return 1 if the given queue is empty, 0 if not
-*/
-int isEmpty(struct Node *queue)
-{
-  return queue == NULL ? true : false;
-}
-
-int main()
+/*int main()
 {
   struct Node *list;
   struct Node **list_add = &list;
   initLinkList(list_add);
   display(list);
 
-  /*addToHead(list_add, 5);
+  addToHead(list_add, 5);
   display(list);
   addToHead(list_add, 6);
   display(list);
@@ -199,14 +160,14 @@ int main()
   addToHead(list_add, 8);
   display(list);
   addToHead(list_add, 9);
-  display(list);*/
-
-  /*addToTail(list_add, 3);
   display(list);
+
   addToTail(list_add, 3);
   display(list);
   addToTail(list_add, 3);
   display(list);
+  addToTail(list_add, 3);
+  display(list);
 
   deleteData(list_add, 3);
   display(list);
@@ -215,7 +176,7 @@ int main()
   deleteData(list_add, 3);
   display(list);
   deleteData(list_add, 3);
-  display(list);*/
+  display(list);
 
   addToHead(list_add, 5);
   display(list);
@@ -256,4 +217,4 @@ int main()
   display(list);
   deleteData(list_add, 7);
   display(list);
-}
+}*/
