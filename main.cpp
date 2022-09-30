@@ -1,259 +1,150 @@
-#include<stdio.h>
-#include<stdlib.h>
+//使用計時器計算完成時間
+//https://tinyurl.com/2p8j62he
+//https://levelup.gitconnected.com/8-ways-to-measure-execution-time-in-c-c-48634458d0f9
 
-struct Node
+//傳遞函式到函式中
+//https://stackoverflow.com/questions/9410/how-do-you-pass-a-function-as-a-parameter-in-c
+
+//目前問題，為什麼每次執行時間不同
+
+
+#include<cstdlib>
+#include<iostream>
+
+#define LENGTH 5
+
+//創建隨機數
+void create_random_number(int *array, int *backup, int length)
 {
-    int data;
-    struct Node *prev, *next;
-};
-/*
-    function initLinkList will initialize the head of a linked list.
-    parameter head represent the head of a linked list.
-*/
-
-
-
-void initLinkList(struct Node **head)
-{
-    *head = NULL;
+  srand(time(NULL));
+  std::cout << "array:";
+  for(int i = 0;i < length;i++)
+  {
+    array[i] = rand() % 10;
+    backup[i] = array[i];
+    std::cout << array[i] << " ";
+  }
+  std::cout << "\n";
 }
-/*
-    function addToHead will insert a node which hold data into linked list from head of the linked list.
-    parameter head represent the head of a linked list.
-    parameter data represent the data to insert.
-*/
-void addToHead(struct Node **head, int data)
-{
-    //創建一個新的Node
-    struct Node *buf_node = (struct Node*)malloc(sizeof(struct Node));
-    buf_node->data = data;
-    buf_node->prev = NULL;
-    buf_node->next = NULL;
 
-    //linkedlist為空的情形
-    if((*head) == NULL)
-    {
-        *head = buf_node;
-    }
-    //已經存在Node
-    else {
-        (*head)->prev = buf_node;
-        buf_node->next = (*head);
-        *head = buf_node;
-    }
-}
-/*
-    function addToHead will insert a node which hold data into linked list from tail of the linked list.
-    parameter head represent the head of a linked list.
-    parameter data represent the data to insert.
-*/
-void addToTail(struct Node **head, int data)
+//執行選擇排序法(較差版本)
+void selection_sort_1(int *array, int length)
 {
-    //創建一個新的Node
-    struct Node *buf_node = (struct Node*)malloc(sizeof(struct Node));
-    buf_node->data = data;
-
-    //linkedlist為空的情形
-    if((*head) == NULL)
+  for(int i = 0;i < length;i++)
+  {
+    for(int j = i+1; j < length;j++)
     {
-        *head = buf_node;
-    }
-    //已經存在Node
-    else {
-        struct Node *iter = (*head);
-        while(iter->next != NULL)
-            iter = iter->next;
-
-        iter->next = buf_node;
-        buf_node->prev = iter;
-    }
-}
-/*
-    function deleteData will search from head to find the first node which hold the data and remove it.
-    parameter head represent the head of a linked list.
-    parameter data represent the data to be search.
-*/
-void deleteData(struct Node **head, int data)
-{
-    struct Node *iter = *head;
-    while(iter != NULL)
-    {
-      if(iter->data == data)
+      if(array[i] > array[j])
       {
-        //更新node
-        if(iter->prev != NULL)
-          iter->prev->next = iter->next;
-        if(iter->next != NULL)
-          iter->next->prev = iter->prev;
+        int buf = array[i];
+        array[i] = array[j];
+        array[j] = buf;
+      }
+    }
+  }
+}
 
-        //更新head & tail
-        if(iter == *head)
+//執行選擇排序法(較好版本)
+void selection_sort_2(int *array, int length)
+{
+  for(int i = 0;i < length;i++)
+    {
+      int min = i;
+      for(int j = i+1; j < length;j++)
+      {
+        if(array[min] > array[j])
         {
-          *head = iter->next;
+          min = j;
         }
-
-        //刪除此node
-        free(iter);
-
-        //完成後回傳
-        return;
       }
-      else
+
+      if(i != min)
       {
-        iter = iter->next;
+        int buf = array[min];
+        array[min] = array[i];
+        array[i] = buf;
       }
     }
 }
-/*
-    function deleteData will search from head to find the first n node which hold the data and remove it.
-    parameter head represent the head of a linked list.
-    parameter data represent the data to be search.
-    parameter n represent the max number of node to be removed.
-*/
-void deleteDatas(struct Node **head, int data, int n)
+
+
+void bubble_sort (int *arr, int len)
 {
-    for(int i = 0;i < n;i++)
-    {
-      deleteData(head, data);
+
+	int i, j,temp;
+	bool exchanged = true;
+	
+	for (i=0; exchanged && i<len-1; i++){ /* 外迴圈為排序趟數，len個數進行len-1趟,只有交換過,exchanged值為true才有必要執行迴圈,否則exchanged值為false不執行迴圈 */
+        exchanged = false;
+		for (j=0; j<len-1-i; j++) 
+		{ /* 內迴圈為每趟比較的次數，第i趟比較len-i次  */
+			if (arr[j] > arr[j+1])
+			{ /* 相鄰元素比較，若逆序則互換（升序為左大於右，逆序反之） */
+				temp = arr[j];
+				arr[j] = arr[j+1];
+				arr[j+1] = temp;
+				exchanged = true; /*只有數值互換過, exchanged才會從false變成true,否則數列已經排序完成,exchanged值仍然為false,沒必要排序 */
+			}
+       }
     }
 }
-/*
-    function display will print out all the data in the linked list from the head
-    there is a \n in the end of each print
-    output example:
-    if your linked list data is 5, 4, 3, 2, 1
-    then you should print out "(5, 4, 3, 2, 1)" with the content in quotes but without the quotes
-    parameter head represent the head of a linked list.
-*/
-void display(struct Node *head)
+
+
+
+//重製陣列
+void reset_array(int *current, int *replace, int length)
 {
-    struct Node *iter = head;
-    int counter = 0;
-    printf("(");
-
-    while(iter != NULL)
-    {
-      if(counter != 0)
-        printf(", ");
-      
-      printf("%d", iter->data);
-      iter = iter->next;
-
-      counter++;
-    }
-    printf(")\n");
+  for(int i = 0;i < length;i++)
+  {
+    *(current + i) = *(replace + i);
+  }
 }
 
-/*
-    function enqueue will insert a data into queue
-    parameter queue represent the queue
-    parameter data represent the data to be insert
-*/
-void enqueue(struct Node **queue, int data)
+void print_array(int *array, int length)
 {
-  addToTail(queue, data);
+  for(int i = 0;i < length;i++)
+  {
+    std::cout << array[i] << " ";
+  }
+  std::cout << "\n";
 }
-/*
-    function dequeue will remove a data from queue
-    parameter queue represent the queue
-    this function should return the data that be removed
-*/
-int dequeue(struct Node **queue)
+
+//紀錄演算法所需時間
+void algorithm_timing(void(*func)(int *, int), int *array, int *array_backup, int length, 
+struct timespec *t_begin, struct timespec *t_end)
 {
-  int num = (*queue)->data;
-  deleteData(queue, num);
-  return num;
-}
-/*
-    function front will give the next remove data in the given queue
-    parameter queue represent the queue
-    this function should return the next remove data
-*/
-int front(struct Node *queue)
-{
-  return queue->data;
-}
-/*
-    function isEmpty will determine if the given queue is empty or not
-    parameter queue represent the queue
-    this function should return 1 if the given queue is empty, 0 if not
-*/
-int isEmpty(struct Node *queue)
-{
-  return queue == NULL ? true : false;
+  clock_gettime(CLOCK_REALTIME, t_begin);
+
+  //執行演算法
+  func(array, length);
+    
+  clock_gettime(CLOCK_REALTIME, t_end);
+  
+  //印出排序好的陣列
+  print_array(array, length);
+  //重製陣列
+  reset_array(array, array_backup, length);
 }
 
 int main()
-{
-  struct Node *list;
-  struct Node **list_add = &list;
-  initLinkList(list_add);
-  display(list);
+{ 
+    int arr[LENGTH] = {3,0,2,0,5}, arr_backup[LENGTH] = {3,0,2,0,5};
+    
+    //產生隨機數
+    //create_random_number(arr, arr_backup, LENGTH);
 
-  /*addToHead(list_add, 5);
-  display(list);
-  addToHead(list_add, 6);
-  display(list);
-  addToHead(list_add, 7);
-  display(list);
-  addToHead(list_add, 8);
-  display(list);
-  addToHead(list_add, 9);
-  display(list);*/
+    for(int i = 0;i < 30;i++)
+    {
+      //計算時間
+    struct timespec t_start, t_end;
+    struct timespec t2_start, t2_end;
+    
+    algorithm_timing(selection_sort_1, arr, arr_backup, LENGTH, &t_start, &t_end);
+    algorithm_timing(selection_sort_2, arr, arr_backup, LENGTH, &t2_start, &t2_end);
 
-  /*addToTail(list_add, 3);
-  display(list);
-  addToTail(list_add, 3);
-  display(list);
-  addToTail(list_add, 3);
-  display(list);
 
-  deleteData(list_add, 3);
-  display(list);
-  deleteData(list_add, 3);
-  display(list);
-  deleteData(list_add, 3);
-  display(list);
-  deleteData(list_add, 3);
-  display(list);*/
-
-  addToHead(list_add, 5);
-  display(list);
-  addToHead(list_add, 6);
-  display(list);
-  addToHead(list_add, 7);
-  display(list);
-
-  deleteData(list_add, 5);
-  display(list);
-  deleteData(list_add, 6);
-  display(list);
-  deleteData(list_add, 7);
-  display(list);
-  addToHead(list_add, 5);
-  display(list);
-  addToHead(list_add, 6);
-  display(list);
-  addToHead(list_add, 7);
-  display(list);
-
-  deleteData(list_add, 5);
-  display(list);
-  deleteData(list_add, 6);
-  display(list);
-  deleteData(list_add, 7);
-  display(list);
-  addToHead(list_add, 5);
-  display(list);
-  addToHead(list_add, 6);
-  display(list);
-  addToHead(list_add, 7);
-  display(list);
-
-  deleteData(list_add, 5);
-  display(list);
-  deleteData(list_add, 6);
-  display(list);
-  deleteData(list_add, 7);
-  display(list);
+    //印出執行時間
+    std::cout << "Selection Sort1:" << t_end.tv_nsec - t_start.tv_nsec << " ns" << std::endl;
+    std::cout << "Selection Sort2:" << t2_end.tv_nsec - t2_start.tv_nsec << " ns" << std::endl << std::endl;
+    }
 }

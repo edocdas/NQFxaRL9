@@ -52,6 +52,8 @@ void addToTail(struct Node **head, int data)
     //創建一個新的Node
     struct Node *buf_node = (struct Node*)malloc(sizeof(struct Node));
     buf_node->data = data;
+    buf_node->prev = NULL;
+    buf_node->next = NULL;
 
     //linkedlist為空的情形
     if((*head) == NULL)
@@ -86,7 +88,7 @@ void deleteData(struct Node **head, int data)
         if(iter->next != NULL)
           iter->next->prev = iter->prev;
 
-        //更新head & tail
+        //更新head
         if(iter == *head)
         {
           *head = iter->next;
