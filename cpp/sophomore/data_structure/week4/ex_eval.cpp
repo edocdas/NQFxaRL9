@@ -57,7 +57,7 @@ double calculation(char ch, double a, double b)
     case '^':
       return pow(b,a);
     default:
-      std::cout << "輸入有錯誤喔\n";
+      std::cout << "ERROR\n";
       return 0;
   }
 }

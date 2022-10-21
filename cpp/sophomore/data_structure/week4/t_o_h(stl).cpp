@@ -1,5 +1,7 @@
 //想法來源
 //https://kt11273.pixnet.net/blog/post/217984822
+//模擬
+//https://www.mathsisfun.com/games/towerofhanoi.html
 
 #include<iostream>
 #include<stack>
