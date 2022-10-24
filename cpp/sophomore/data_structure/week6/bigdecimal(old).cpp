@@ -1,57 +1,63 @@
-#include<cstdio>
 #include<iostream>
 #include<cstring>
-#include<string>
-
-#define SIZE 1000
 
 class BigDecimal
 {
   public:
   BigDecimal() = default;
-  BigDecimal(std::string int_arr, std::string dec_arr)
+  BigDecimal(const char *int_arr, const char *dec_arr)
   {
-    this->ch_int_arr = int_arr;
-    this->ch_dec_arr = dec_arr;
+    //this->ch_int_arr = new char[10000];
+    //this->ch_dec_arr = new char[10000];
 
+    strcpy(this->ch_int_arr, int_arr);
+    strcpy(this->ch_dec_arr, dec_arr);
   }
   BigDecimal(const BigDecimal &input)
   {
-    this->ch_int_arr = input.ch_int_arr;
-    this->ch_dec_arr = input.ch_dec_arr;
+    //this->ch_int_arr = new char[10000];
+    //this->ch_dec_arr = new char[10000];
+
+    strcpy(this->ch_int_arr, input.ch_int_arr);
+    strcpy(this->ch_dec_arr, input.ch_dec_arr);
     this->positive = input.positive;
   }
 
+  ~BigDecimal()
+  {
+    //delete []ch_int_arr;
+    //delete []ch_dec_arr;
+  }
 
-  static void set_substr(std::string *input, std::string *in_int, std::string *in_dec)
+  static void set_substr(char *input, char *in_int, char *in_dec)
   {
     //找點號
-    size_t dot = input->find(".");
+    char *dot = strstr(input, ".");
 
     //整數情況
-    if(dot == std::string::npos)
+    if(dot == NULL)
     {
-      *in_int = *input;
-      *in_dec = "0";
+      strcpy(in_int, input);
+      strcpy(in_dec, "0\0");
     }
     else
     //小數情況
     {
-      *in_int = input->substr(0, dot);
-      *in_dec = input->substr(dot+1);
+      strncpy(in_int, input, dot-input);
+      strcpy(in_dec, dot+1);
     }
   }
 
   bool bigger(const BigDecimal *a, const BigDecimal *b) const
   {
     //檢查整數
-    if(a->ch_int_arr.length() > b->ch_int_arr.length())
+    if(strlen(a->ch_int_arr) > strlen(b->ch_int_arr))
       return true;
     
-    if(a->ch_int_arr.length() < b->ch_int_arr.length())
+    if(strlen(a->ch_int_arr) < strlen(b->ch_int_arr))
       return false;
 
-    for(int i = 0;i <= a->ch_int_arr.length() || i << b->ch_int_arr.length();i++)
+    for(int i = 0;i <= strlen(a->ch_int_arr) || i << strlen(b->ch_int_arr);i++)
     {
       if(a->ch_int_arr[i] > b->ch_int_arr[i])
         return true;
@@ -60,13 +66,13 @@ class BigDecimal
     }
 
     //檢查小數
-    if(a->ch_dec_arr.length() > b->ch_dec_arr.length())
+    if(strlen(a->ch_dec_arr) > strlen(b->ch_dec_arr))
       return true;
     
-    if(a->ch_dec_arr.length() < b->ch_dec_arr.length())
+    if(strlen(a->ch_dec_arr) < strlen(b->ch_dec_arr))
       return false;
 
-    for(int i = 0;i <= a->ch_dec_arr.length() || i << b->ch_dec_arr.length();i++)
+    for(int i = 0;i <= strlen(a->ch_dec_arr) || i << strlen(b->ch_dec_arr);i++)
     {
       if(a->ch_dec_arr[i] > b->ch_dec_arr[i])
         return true;
@@ -78,34 +84,40 @@ class BigDecimal
     return true;
   }
 
-  bool bigger_integer(const std::string *a_int, const std::string *b_int)
+  bool bigger_integer(const char *a_int, const char *b_int)
   {
-    if(a_int->length() > b_int->length())
+    if(strlen(a_int) > strlen(b_int))
       return true;
-    else if(a_int->length() < b_int->length())
+    else if(strlen(a_int) < strlen(b_int))
       return false;
     else
     {
-      if(*a_int >= *b_int)
-        return true;
-      else
-        return false;
+      for(int i = 0;i < strlen(a_int);i++)
+      {
+        if(a_int[i] > b_int[i])
+          return true;
+        else if(a_int[i] < b_int[i])
+          return false;
+      }
+
+      //兩者相同
+      return true;
     }
   }
 
-  bool equal(std::string *a_int, std::string *b_int) const
+  bool equal(const char *a_int, const char *b_int)
   {
-    if(a_int->length() > b_int->length())
+    if(strlen(a_int) > strlen(b_int))
       return false;
-    else if(a_int->length() < b_int->length())
+    else if(strlen(a_int) < strlen(b_int))
       return false;
     else
     {
-      for(int i = 0;i < a_int->length();i++)
+      for(int i = 0;i < strlen(a_int);i++)
       {
-        //std::cout << a_int[i] << " " << b_int[i] << std::endl;
-
-        if(a_int[i] != b_int[i])
+        if(a_int[i] > b_int[i])
+          return false;
+        else if(a_int[i] < b_int[i])
           return false;
       }
 
@@ -115,7 +127,7 @@ class BigDecimal
   }
 
 
-  static void check_9(char *ch, int iter, int *bonus)
+  void check_9(char *ch, int iter, int *bonus)
   {
     if(ch[iter] == '9')
     {
@@ -136,15 +148,11 @@ class BigDecimal
   }
 
   //想法，把小數轉成整數後計算
-  static void banker_rounding(std::string *a, std::string *b)
+  void banker_rounding(char *i_arr, char *d_arr)
   {
-    char i_arr[a->length()+1], d_arr[b->length()+1];
-    strcpy(i_arr, a->c_str());
-    strcpy(d_arr, b->c_str());
-
     int bonus = 0;
     char *dot_place = 0;
-    char ch[SIZE];
+    char ch[10000];
 
     strcpy(ch, i_arr);
     strcpy(ch+strlen(ch), ".");
@@ -154,8 +162,7 @@ class BigDecimal
 
     for(int i = strlen(ch)-1; ch[i-2] != '.' && ch[i-1] != '.';i--)
     {
-      if(ch[i] - '0' > 5 || (ch[i] - '0' == 5 && (ch[i-1] - '0') % 2 == 1) 
-      || (i != strlen(ch)-1 && ch[i] - '0' == 5 && (ch[i-1] - '0') % 2 == 0 && ch[i+1] != '0'))
+      if(ch[i] - '0' > 5 || (ch[i] - '0' == 5 && (ch[i-1] - '0') % 2 == 1))
       {
         ch[i] = '0';
         check_9(ch, i-1, &bonus);
@@ -173,7 +180,7 @@ class BigDecimal
       //剛好全部都進位了，ex. 999.988 -> 1000.00
       if(dot_place+index == ch)
       {
-        char buf[SIZE];
+        char buf[10000];
         strcpy(buf, "1");
         strcpy(buf+strlen(buf), ch);
         strcpy(ch, buf);
@@ -187,10 +194,6 @@ class BigDecimal
     dot_place = strchr(ch, '.');
     strncpy(i_arr, ch, dot_place-ch);
     strcpy(d_arr, dot_place+1);
-
-
-    *a = i_arr;
-    *b = d_arr;
   }
 
   BigDecimal* operator+(const BigDecimal *input) const
@@ -249,16 +252,6 @@ class BigDecimal
     return output;
   }
 
-  void operator+=(const BigDecimal *input)
-  {
-    BigDecimal *buf = *this + input;
-
-    this->ch_dec_arr = buf->ch_dec_arr;
-    this->ch_int_arr = buf->ch_int_arr;
-    this->positive = buf->positive;
-
-    delete buf;
-  }
 
   BigDecimal* operator-(const BigDecimal *input) const
   {
@@ -310,37 +303,28 @@ class BigDecimal
     return output;
   }
 
-  void operator -=(const BigDecimal *input)
-  {
-    BigDecimal *buf = *this - input;
-
-    this->ch_dec_arr = buf->ch_dec_arr;
-    this->ch_int_arr = buf->ch_int_arr;
-    this->positive = buf->positive;
-
-    delete buf;
-  }
-
   BigDecimal* operator*(const BigDecimal *input) const
   {
-    int decimal_digit = this->ch_dec_arr.length() + input->ch_dec_arr.length();
-    int calc[SIZE] = {0}, arr_index = 0;
-    std::string num_a, num_b, res, buf;
-    num_a = this->ch_int_arr + this->ch_dec_arr;
-    num_b = input->ch_int_arr + input->ch_dec_arr;
-
+    int decimal_digit = strlen(this->ch_dec_arr) + strlen(input->ch_dec_arr);
+    int calc[10000] = {0}, arr_index = 0;
+    char num_a[10000], num_b[10000], res[10000], buf[10000];
+    memset(res, 0, 10000);
+    strcpy(num_a, this->ch_int_arr);
+    strcpy(num_a+strlen(num_a), this->ch_dec_arr);
+    strcpy(num_b, input->ch_int_arr);
+    strcpy(num_b+strlen(num_b), input->ch_dec_arr);
 
     //std::cout << "num_a:" << num_a << std::endl;
     //std::cout << "num_b:" << num_b << std::endl;
     //std::cout << "decimal_digit:" << decimal_digit << std::endl;
 
-    arr_index = num_a.length() + num_b.length();
+    arr_index = strlen(num_a) + strlen(num_b);
 
     //std::cout << "multply 1\n";
 
-    for(int i = num_a.length()-1;i >= 0;i--)
+    for(int i = strlen(num_a)-1;i >= 0;i--)
     {
-      for(int j = num_b.length()-1;j >= 0;j--)
+      for(int j = strlen(num_b)-1;j >= 0;j--)
       {
         int buf_a = num_a[i] - '0';
         int buf_b = num_b[j] - '0';
@@ -348,7 +332,7 @@ class BigDecimal
         //std::cout << "buf_a:" << buf_a << "buf_b:" << buf_b << std::endl;
 
 
-        calc[num_a.length()-1-i+num_b.length()-1-j] += (buf_a * buf_b);
+        calc[strlen(num_a)-1-i+strlen(num_b)-1-j] += (buf_a * buf_b);
         //std::cout << "calc:" << calc[strlen(num_a)-1-i+strlen(num_b)-1-j] << std::endl;
       }
     }
@@ -379,7 +363,7 @@ class BigDecimal
 
       if(not_zero)
       {
-        res += std::to_string(calc[i]);
+      sprintf(res+strlen(res), "%d", calc[i]);
       }
       //std::cout << "put num:"<< calc[i] << std::endl;
     }
@@ -387,43 +371,45 @@ class BigDecimal
     //全部都是零
     if(!not_zero)
       {
-        res += std::to_string(0);
+      sprintf(res+strlen(res), "%d", 0);
       }
     
     //std::cout << "copy string\n";
     //std::cout << res << std::endl;
 
 
-    std::string res_int, res_dec;
+    char res_int[10000], res_dec[10000];
+    memset(res_int, 0, 10000);
+    memset(res_dec, 0, 10000);
 
     //此數為零
-    if(res.length() == 1 && res[0] == '0')
+    if(strlen(res) == 1 && res[0] == '0')
     {
-      res_int += "0";
-      res_dec += "0";
+      strcpy(res_int, "0\0");
+      strcpy(res_dec, "0\0");
     }
     //此數為小於一
-    else if(res.length() <= decimal_digit)
+    else if(strlen(res) <= decimal_digit)
     {
-      for(int i = 0;i < decimal_digit-res.length();i++)
+      for(int i = 0;i < decimal_digit-strlen(res);i++)
       {
-        res_dec += "0";
+        strcpy(res_dec+strlen(res_dec), "0\0");
       }
-      res_int += "0";
+      strcpy(res_int, "0\0");
 
-      res_dec += res;
+      strcpy(res_dec+strlen(res_dec), res);
     }
     //此數大於一
     else
     {
-      res_int += res.substr(0, res.length()-decimal_digit);
-      res_dec += res.substr(res.length()-decimal_digit);
+      strncpy(res_int, res, strlen(res)-decimal_digit);
+      strcpy(res_dec, res+strlen(res)-decimal_digit);
     }
 
     //如果小數位數太多(大於25，拿掉多餘的)
-    while(res_dec.length() > 25)
+    while(strlen(res_dec) > 25)
     {
-      res_dec.resize(25);
+      res_dec[strlen(res_dec)-1] = '\0';
     }
 
     
@@ -438,15 +424,68 @@ class BigDecimal
     return r;
   }
   
-  void operator *=(const BigDecimal *input)
+  BigDecimal* operator^(BigDecimal *input)
   {
-    BigDecimal *buf = *this * input;
+    BigDecimal ln_calc(this->ch_int_arr,this->ch_dec_arr), num_1("1","0"), num_2("2","0");
+    BigDecimal *buf_1 = ln_calc - &num_1, *buf_2 = ln_calc + &num_1;
+    BigDecimal *ln_numerator = *buf_1 / buf_2, *pow_ln_numerator;
+    
+    pow_ln_numerator = *ln_numerator * &num_1;
+    
 
-    this->ch_dec_arr = buf->ch_dec_arr;
-    this->ch_int_arr = buf->ch_int_arr;
-    this->positive = buf->positive;
+    BigDecimal *ln_denominator = new BigDecimal("1","0");
+    BigDecimal *ln_result = new BigDecimal("0","0");
 
-    delete buf;
+
+    //計算ln(目前計算3000次，看準不準確)
+    for(int round = 0;round < 3000;round++)
+    {
+      if(round != 0)
+      {
+        for(int pow_2 = 0 ; pow_2 < 2;pow_2++)
+        {
+          //std::cout << "\nstart\n";
+          pow_ln_numerator = *pow_ln_numerator * ln_numerator;
+          //std::cout << "\nend\n";
+          //std::cout << "pow_ln_numerator:" << pow_ln_numerator->ch_int_arr << "." << pow_ln_numerator->ch_dec_arr << std::endl;
+        }
+
+        ln_denominator = *ln_denominator + &num_2;
+      }
+
+      BigDecimal *buf_3 = *pow_ln_numerator / ln_denominator;
+      ln_result = *ln_result + buf_3;
+      //std::cout << "integer:" << result->ch_int_arr << std::endl;
+      //std::cout << "dec:" << result->ch_dec_arr << std::endl;
+    }
+
+    ln_result = *ln_result * &num_2;
+    std::cout << "integer:" << ln_result->ch_int_arr << std::endl;
+    std::cout << "dec:" << ln_result->ch_dec_arr << std::endl;
+
+
+    BigDecimal *e_power = *ln_result * input;
+
+    BigDecimal *counter = new BigDecimal("3000","0");
+    BigDecimal *result = new BigDecimal("1","0");
+
+    for(int round = 3000;round > 0;round--)
+    {
+      std::cout << "round:" << round << std::endl;
+      BigDecimal *buf_4 = *e_power * result;
+      buf_4 = *buf_4 / counter;
+      buf_4 = *buf_4 + &num_1;
+      result = buf_4;
+
+      counter = *counter - &num_1;
+    }
+
+    //for (i = n - 1, sum = 1; i > 0; --i )
+    //  sum = 1 + x * sum / i; 
+
+    std::cout << "final result:" << result << std::endl;
+
+    return result;
   }
 
   /*
@@ -454,22 +493,26 @@ class BigDecimal
   2.處理整數部分
   3.處理小數部分
   */
-  BigDecimal* operator/(const BigDecimal *input)
+  BigDecimal* operator/(BigDecimal *input)
   {
-    std::string input_a, input_b, buf;
+    char input_a[10000], input_b[10000], buf[10000];
+    memset(input_a, 0, 10000);
+    memset(input_b, 0, 10000);
 
     //複製字串到input_a & input_b
-    input_a = this->ch_int_arr + this->ch_dec_arr;
-    input_b = input->ch_int_arr + input->ch_dec_arr;
+    strcpy(input_a, this->ch_int_arr);
+    strcpy(input_a+strlen(input_a), this->ch_dec_arr);
+    strcpy(input_b, input->ch_int_arr);
+    strcpy(input_b+strlen(input_b), input->ch_dec_arr);
 
     //預期a比b還要多小數
-    int difference = this->ch_dec_arr.length() - input->ch_dec_arr.length();
+    int difference = strlen(this->ch_dec_arr) - strlen(input->ch_dec_arr);
     if(difference > 0)
     {
       for(int i = 0;i < difference;i++)
       {
         //std::cout << "fill 0 on input_b\n";
-        input_b += "0";
+        strcpy(input_b+strlen(input_b), "0");
       }
     }
     else if(difference < 0)
@@ -477,7 +520,7 @@ class BigDecimal
       for(int i = 0;i < abs(difference);i++)
       {
         //std::cout << "fill 0 on input_a\n";
-        input_a += "0";
+        strcpy(input_a+strlen(input_a), "0");
       }
     }
 
@@ -487,12 +530,14 @@ class BigDecimal
     //把input_a & input_b 前面的零拿掉
     while(input_a[0] == '0')
     {
-      input_a.erase(0, 1);
+      strcpy(buf, input_a+1);
+      strcpy(input_a, buf);
       //std::cout << "in while input_a:" << input_a << std::endl;
     }
     while(input_b[0] == '0')
     {
-      input_a.erase(0, 1);
+      strcpy(buf, input_b+1);
+      strcpy(input_b, buf);
       //std::cout << "in while input_b:" << input_b << std::endl;
     }
 
@@ -502,49 +547,53 @@ class BigDecimal
 
     //到這邊，已經有整數的input_a & input_b
     //將input_a當作被除數，input_b當作除數
-    std::string::iterator start = input_a.begin(), end = input_a.begin();
-    std::string res_int, res_dec;
+    char *start = input_a, *end = input_a;
+    char res_int[10000], res_dec[10000];
+    memset(res_int, 0, 10000);
+    memset(res_dec, 0, 10000);
     
     //先處理整數部分
-    while(end != input_a.end())
+    while(end != input_a + strlen(input_a))
     {
-      std::string::iterator not_zero_start = start;
-      std::string buf2;
+      char buf2[10000], *not_zero_start = start;
+      memset(buf2, 0 , 10000);
 
       while(*not_zero_start == '0' && not_zero_start < end)
         not_zero_start++;
 
-      buf2 += std::string(not_zero_start, not_zero_start+(end-not_zero_start)+1);
+      strncpy(buf2, not_zero_start, end-not_zero_start+1);
       //可以除
 
       //std::cout << "compare num:" << buf2 << std::endl;
 
-      if(bigger_integer(&buf2, &input_b))
+      if(bigger_integer(buf2, input_b))
       {
         for(int i = 1;i < 10;i++)
         {
-          BigDecimal multi_a(input_b, "0"), multi_b(std::to_string(i),"0");
+          char select_num = i + '0', multi_num[3] = {select_num, '\0'};
+
+          BigDecimal multi_a(input_b, "0"), multi_b(multi_num,"0");
           //std::cout << multi_a.ch_int_arr << " " << multi_b.ch_int_arr << std::endl;
           BigDecimal *multi_res = multi_a * &multi_b;
           //額外加一份，用作比大小
-          *multi_res += &multi_a;
+          multi_res = *multi_res + &multi_a; 
 
           //std::cout << "multiply num:" << multi_res->ch_int_arr << std::endl;
 
           //除數的乘積大於所選定的被除數
-          if(bigger_integer(&multi_res->ch_int_arr, &buf2) && !((multi_res->ch_int_arr) == buf2))
+          if(bigger_integer(multi_res->ch_int_arr, buf2) && !equal(multi_res->ch_int_arr, buf2))
           {
             //把比大小的額外一倍減掉
-            *multi_res -= &multi_a;
+            multi_res = *multi_res - &multi_a;
 
             BigDecimal subtract_b = BigDecimal(buf2,"0");
             BigDecimal *after_sub = subtract_b - multi_res;
 
             //std::cout << "sub num:" << after_sub->ch_int_arr << std::endl;
 
-            int sub_len = after_sub->ch_int_arr.length() - 1;
+            int sub_len = strlen(after_sub->ch_int_arr) - 1;
             //把減下的數字放回被除數中
-            for(auto iter = end;iter >= start;iter--, sub_len--)
+            for(char * iter = end;iter >= start;iter--, sub_len--)
             {
               if(sub_len >= 0)
                 *iter = after_sub->ch_int_arr[sub_len];
@@ -552,13 +601,10 @@ class BigDecimal
                 *iter = '0';
             }
 
-            delete multi_res;
-            delete after_sub;
-
             //std::cout << "input_a:" << input_a << std::endl;
 
             //放置數到商中
-            res_int += std::to_string(i);
+            strcpy(res_int+strlen(res_int), multi_num);
 
             while(*start == '0' && start != end)
               start++;
@@ -567,69 +613,62 @@ class BigDecimal
 
             break;
           }
-          delete multi_res;
         }
       }
       //除不了
       else
       {
         end++;
-        res_int += "0";
+        strcpy(res_int+strlen(res_int), "0");
       }
     }
-    
-    int start_num = start-input_a.begin(), end_num = end-input_a.begin();
 
-    input_a += "0";
-    //更新iterator
-    start = input_a.begin() + start_num;
-    end = input_a.begin() + end_num;
+    *end = '0';
     //std::cout << "decimal part\n";
-    //std::cout << "start_num:" << start_num << std::endl;
-    //std::cout << "end_num:" << end_num << std::endl;
 
-    
+        
     //再處理小數部分
-    while(res_dec.length() < 25)
+    while(strlen(res_dec) < 20)
     {
-      std::string buf2;
-      std::string::iterator not_zero_start = start;
+      char buf2[10000], *not_zero_start = start;
+      memset(buf2, 0 , 10000);
 
       while(*not_zero_start == '0' && not_zero_start < end)
         not_zero_start++;
 
-      buf2 += std::string(not_zero_start, not_zero_start+(end-not_zero_start)+1);
+      strncpy(buf2, not_zero_start, end-not_zero_start+1);
       //可以除
 
       //std::cout << "compare num:" << buf2 << std::endl;
 
-      if(bigger_integer(&buf2, &input_b))
+      if(bigger_integer(buf2, input_b))
       {
         for(int i = 1;i < 10;i++)
         {
-          //std::cout << "input_b:" << input_b << "end" << std::endl;
-          BigDecimal multi_a(input_b, "0"), multi_b(std::to_string(i),"0");
+          char select_num = i + '0', multi_num[3] = {select_num, '\0'};
+
+          BigDecimal multi_a(input_b, "0"), multi_b(multi_num,"0");
           //std::cout << multi_a.ch_int_arr << " " << multi_b.ch_int_arr << std::endl;
           BigDecimal *multi_res = multi_a * &multi_b;
           //額外加一份，用作比大小
-          *multi_res += &multi_a;
+          multi_res = *multi_res + &multi_a; 
 
           //std::cout << "multiply num:" << multi_res->ch_int_arr << std::endl;
 
           //除數的乘積大於所選定的被除數
-          if(bigger_integer(&multi_res->ch_int_arr, &buf2) && !((multi_res->ch_int_arr) == buf2))
+          if(bigger_integer(multi_res->ch_int_arr, buf2) && !equal(multi_res->ch_int_arr, buf2))
           {
             //把比大小的額外一倍減掉
-            *multi_res -= &multi_a;
+            multi_res = *multi_res - &multi_a;
 
             BigDecimal subtract_b = BigDecimal(buf2,"0");
             BigDecimal *after_sub = subtract_b - multi_res;
 
             //std::cout << "sub num:" << after_sub->ch_int_arr << std::endl;
 
-            int sub_len = after_sub->ch_int_arr.length() - 1;
+            int sub_len = strlen(after_sub->ch_int_arr) - 1;
             //把減下的數字放回被除數中
-            for(auto iter = end;iter >= start;iter--, sub_len--)
+            for(char * iter = end;iter >= start;iter--, sub_len--)
             {
               if(sub_len >= 0)
                 *iter = after_sub->ch_int_arr[sub_len];
@@ -638,11 +677,9 @@ class BigDecimal
             }
 
             //std::cout << "input_a:" << input_a << std::endl;
-            delete multi_res;
-            delete after_sub;
 
             //放置數到商中
-            res_dec += std::to_string(i);
+            strcpy(res_dec+strlen(res_dec), multi_num);
 
             while(*start == '0' && start != end)
               start++;
@@ -651,44 +688,34 @@ class BigDecimal
 
             break;
           }
-
-          delete multi_res;
         }
       }
       //除不了
       else
       {
         end++;
-        res_dec += "0";
+        strcpy(res_dec+strlen(res_dec), "0");
       }
 
-      int start_num = start-input_a.begin(), end_num = end-input_a.begin();
-      //std::cout << "res_dec.len:" << res_dec.length() << std::endl;
-      //std::cout << res_dec.capacity() << std::endl;
-      //std::cout << "start_num:" << start_num << std::endl;
-      //std::cout << "end_num:" << end_num << std::endl;
       //額外增加一位
-      input_a += "0";
-
-      start = input_a.begin() + start_num;
-      end = input_a.begin() + end_num;
-
+      *end = '0';
     }
     
-
     //清除整數前的0
-    std::string::iterator not_zero_place = res_int.begin();
-    while(*not_zero_place == '0' && not_zero_place != res_int.end())
+    char *not_zero_place = res_int;
+    while(*not_zero_place == '0')
       not_zero_place++;
     
     //全部是0
-    if(not_zero_place == res_int.end())
+    if(*not_zero_place == '\0')
     {
-      res_int = "0";
+      strcpy(buf, "0");
+      strcpy(res_int, buf);
     }
     else
     {
-      res_int = std::string(not_zero_place, res_int.end());
+      strcpy(buf, not_zero_place);
+      strcpy(res_int, buf);
     }
 
     BigDecimal *result = new BigDecimal(res_int, res_dec);
@@ -696,134 +723,21 @@ class BigDecimal
     return result;
   }
 
-  void operator /=(const BigDecimal *input)
-  {
-    BigDecimal *buf = *this / input;
-
-    this->ch_dec_arr = buf->ch_dec_arr;
-    this->ch_int_arr = buf->ch_int_arr;
-    this->positive = buf->positive;
-
-    delete buf;
-  }
-
-  BigDecimal* operator^(const BigDecimal *input) const
-  {
-    BigDecimal num_1("1","0"), num_2("2","0");
-    BigDecimal *int_res = new BigDecimal("1","0"), *iter = new BigDecimal("0","0");
-
-    //整數指數
-    if(input->ch_int_arr != "0")
-    {
-      do
-      {
-        //乘以本身
-        *int_res *= this;
-
-        //加一
-        *iter += &num_1;
-        //std::cout << iter->ch_int_arr << std::endl;
-        //std::cout << int_res->ch_int_arr << "." << int_res->ch_dec_arr << std::endl;
-
-      }while(!(input->ch_int_arr == iter->ch_int_arr));
-
-    }
-    //std::cout << "integer pow complete\n";
-
-    BigDecimal ln_calc(this->ch_int_arr,this->ch_dec_arr);
-    BigDecimal *buf_1 = ln_calc - &num_1, *buf_2 = ln_calc + &num_1;
-    BigDecimal *ln_numerator = *buf_1 / buf_2, *pow_ln_numerator = *ln_numerator * &num_1;
-    BigDecimal *ln_denominator = new BigDecimal("1","0");
-    
-    BigDecimal *ln_result = new BigDecimal("0","0");
-
-    //std::cout << "calc ln:\n";
-    //計算ln(目前計算3000次，看準不準確)
-    for(int round = 0;round < 3000;round++)
-    {
-      if(round != 0)
-      {
-        for(int pow_2 = 0 ; pow_2 < 2;pow_2++)
-        {
-          //std::cout << "\nstart\n";
-          *pow_ln_numerator *= ln_numerator;
-          //std::cout << "\nend\n";
-          //std::cout << "pow_ln_numerator:" << pow_ln_numerator->ch_int_arr << "." << pow_ln_numerator->ch_dec_arr << std::endl;
-        }
-
-        *ln_denominator += &num_2;
-      }
-
-      BigDecimal *buf_3 = *pow_ln_numerator / ln_denominator;
-      *ln_result += buf_3;
-
-      delete buf_3;
-      
-      //std::cout << "integer:" << result->ch_int_arr << std::endl;
-      //std::cout << "dec:" << result->ch_dec_arr << std::endl;
-    }
-
-    *ln_result *= &num_2;
-    //std::cout << "integer:" << ln_result->ch_int_arr << std::endl;
-    //std::cout << "dec:" << ln_result->ch_dec_arr << std::endl;
-    
-    delete buf_1;
-    delete buf_2;
-    delete ln_numerator;
-    delete pow_ln_numerator;
-    delete ln_denominator;
-
-
-
-    BigDecimal input_dec("0", input->ch_dec_arr);
-    BigDecimal *e_power = *ln_result * &input_dec;
-
-    BigDecimal *counter = new BigDecimal("3000","0");
-    BigDecimal *result = new BigDecimal("1","0");
-
-    for(int round = 3000;round > 0;round--)
-    {
-      //std::cout << "round:" << round << std::endl;
-      BigDecimal *buf_4 = *e_power * result;
-      delete result;
-      *buf_4 /= counter;
-
-      result = *buf_4 + &num_1;
-      delete buf_4;
-
-      *counter -= &num_1;
-    }
-
-    //for (i = n - 1, sum = 1; i > 0; --i )
-    //  sum = 1 + x * sum / i; 
-    delete e_power;
-    delete counter;
-    delete ln_result;
-    
-    BigDecimal *final_res = *result * int_res;
-    //std::cout << "final result:" << final_res->ch_int_arr << "." << final_res->ch_dec_arr << std::endl;
-
-    delete result;
-    delete int_res;
-    delete iter;
-
-    return final_res;
-  }
-
-
   //預期為兩個正數加法
-  BigDecimal* add(std::string a_i_arr, std::string a_d_arr , std::string b_i_arr, std::string b_d_arr) const
+  BigDecimal* add(const char *a_i_arr, const char *a_d_arr , const char *b_i_arr, const char *b_d_arr) const
   {
     //結果字串
-    std::string res_int, res_dec;
+    char res_int[10000], res_dec[10000];
+    memset(res_int, 0, 10000);
+    memset(res_dec, 0, 10000);
 
     //計算用的陣列
-    int calc_int_arr[SIZE]={0}, calc_dec_arr[SIZE]={0};
+    int calc_int_arr[10000]={0}, calc_dec_arr[10000]={0};
     //紀錄進位與index
     int int_carry = 0, dec_carry = 0, i_arr_index = 0, d_arr_index = 0;
 
     //整數運算
-    for(int a_len = a_i_arr.length()-1, b_len = b_i_arr.length()-1
+    for(int a_len = strlen(a_i_arr)-1, b_len = strlen(b_i_arr)-1
       ;a_len >= 0 || b_len >= 0;a_len--, b_len--, i_arr_index++)
       {
         //如果該位數為空，就回傳0
@@ -846,12 +760,12 @@ class BigDecimal
     //std::cout << "Integer add complete\n";
 
     //小數運算
-    for(int iter = a_d_arr.length() > b_d_arr.length() ? a_d_arr.length()-1 : b_d_arr.length()-1;
+    for(int iter = strlen(a_d_arr) > strlen(b_d_arr) ? strlen(a_d_arr)-1 : strlen(b_d_arr)-1;
       iter >= 0;iter--, d_arr_index++)
       {
         
-        int buf_a = iter <= a_d_arr.length()-1 ? a_d_arr[iter] - '0' : 0; 
-        int buf_b = iter <= b_d_arr.length()-1 ? b_d_arr[iter] - '0' : 0;
+        int buf_a = iter <= strlen(a_d_arr)-1 ? a_d_arr[iter] - '0' : 0; 
+        int buf_b = iter <= strlen(b_d_arr)-1 ? b_d_arr[iter] - '0' : 0;
 
         calc_dec_arr[iter] = buf_a + buf_b + dec_carry;
         dec_carry = calc_dec_arr[iter] / 10;
@@ -885,14 +799,14 @@ class BigDecimal
       if(i == i_arr_index && calc_int_arr[i] == 0)
         continue;
 
-      res_int += std::to_string(calc_int_arr[i]);
+      sprintf(res_int+strlen(res_int), "%d", calc_int_arr[i]);
       //std::cout << "put num:"<< calc_int_arr[i] << std::endl;
     }
 
     //將小數陣列轉成字串
     for(int i = 0;i < d_arr_index;i++)
     {
-      res_dec += std::to_string(calc_dec_arr[i]);
+      sprintf(res_dec+strlen(res_dec), "%d", calc_dec_arr[i]);
       //std::cout << "calc_dec_arr:" << calc_dec_arr[i] << std::endl;
     }
 
@@ -918,23 +832,25 @@ class BigDecimal
   4.把小數陣列轉成字串
   */
   //預期為兩個正數減法(大減小)
-  BigDecimal* sub(std::string a_i_arr, std::string a_d_arr, std::string b_i_arr, std::string b_d_arr) const
+  BigDecimal* sub(const char *a_i_arr, const char *a_d_arr, const char *b_i_arr, const char *b_d_arr) const
   {
     //結果字串
-    std::string res_int, res_dec;
+    char res_int[10000], res_dec[10000];
+    memset(res_int, 0, 10000);
+    memset(res_dec, 0, 10000);
 
     //計算用的陣列
-    int calc_int_arr[SIZE]={0}, calc_dec_arr[SIZE]={0};
+    int calc_int_arr[10000]={0}, calc_dec_arr[10000]={0};
     //紀錄進位與index
     int int_borrow = 0, i_arr_index = 0, d_arr_index = 0;
 
     //小數運算
-    for(int iter = a_d_arr.length() > b_d_arr.length() ? a_d_arr.length()-1 : b_d_arr.length()-1;
+    for(int iter = strlen(a_d_arr) > strlen(b_d_arr) ? strlen(a_d_arr)-1 : strlen(b_d_arr)-1;
       iter >= 0;iter--, d_arr_index++)
       {
         
-        int buf_a = iter <= a_d_arr.length()-1 ? a_d_arr[iter] - '0' : 0; 
-        int buf_b = iter <= b_d_arr.length()-1 ? b_d_arr[iter] - '0' : 0;
+        int buf_a = iter <= strlen(a_d_arr)-1 ? a_d_arr[iter] - '0' : 0; 
+        int buf_b = iter <= strlen(b_d_arr)-1 ? b_d_arr[iter] - '0' : 0;
 
         calc_dec_arr[iter] += buf_a - buf_b;
         //需要和整數借位
@@ -958,7 +874,7 @@ class BigDecimal
       //std::cout << "Decimal subtract complete\n";
 
     //整數運算
-    for(int a_len = a_i_arr.length()-1, b_len = b_i_arr.length()-1
+    for(int a_len = strlen(a_i_arr)-1, b_len = strlen(b_i_arr)-1
       ;a_len >= 0 || b_len >= 0;a_len--, b_len--, i_arr_index++)
       {
         //如果該位數為空，就回傳0
@@ -998,7 +914,7 @@ class BigDecimal
 
       if(not_zero)
       {
-        res_int += std::to_string(calc_int_arr[i]);
+      sprintf(res_int+strlen(res_int), "%d", calc_int_arr[i]);
       }
       //std::cout << "put num:"<< calc_int_arr[i] << std::endl;
     }
@@ -1006,13 +922,13 @@ class BigDecimal
     //全部都是零
     if(!not_zero)
       {
-        res_int += std::to_string(0);
+      sprintf(res_int+strlen(res_int), "%d", 0);
       }
 
     //將小數陣列轉成字串
     for(int i = 0;i < d_arr_index;i++)
     {
-      res_dec += std::to_string(calc_dec_arr[i]);
+      sprintf(res_dec+strlen(res_dec), "%d", calc_dec_arr[i]);
       //std::cout << "calc_dec_arr:" << calc_dec_arr[i] << std::endl;
     }
 
@@ -1025,33 +941,17 @@ class BigDecimal
     return r;
   }
 
-  static bool check_all_zero(std::string int_arr, std::string dec_arr)
-  {
-    for(int i = 0;i < int_arr.length();i++)
-    {
-      if(int_arr[i] != '0')
-        return false;
-    }
-
-    for(int i = 0;i < dec_arr.length();i++)
-    {
-      if(dec_arr[i] != '0')
-        return false;
-    }
-
-    return true;
-  }
-
   friend std::istream &operator>>(std::istream &in, BigDecimal *data)
   {
-    std::string input;
+    char input[10000], buf[10000];
     in >> input;
 
     //此數為負數
     if(input[0] == '-')
     {
       //std::cout << "This is negative number\n";
-      input.erase(0, 1);
+      strcpy(buf, input+1);
+      strcpy(input, buf);
       data->positive = false;
     }
     else
@@ -1059,9 +959,11 @@ class BigDecimal
       data->positive = true;
     }
 
+    memset(data->ch_int_arr, 0, 10000);
+    memset(data->ch_dec_arr, 0, 10000);
 
     //把整數與小數切割
-    set_substr(&input, &data->ch_int_arr, &data->ch_dec_arr);
+    set_substr(input, data->ch_int_arr, data->ch_dec_arr);
 
     //std::cout << "int_arr"<<data->ch_int_arr << std::endl;
     //std::cout << "dec_arr"<<data->ch_dec_arr << std::endl;
@@ -1072,12 +974,10 @@ class BigDecimal
   {
     if(bigDecimal == NULL)
       return out;
-    
-    banker_rounding(&bigDecimal->ch_int_arr, &bigDecimal->ch_dec_arr);
 
     if(bigDecimal->positive == false && !check_all_zero(bigDecimal->ch_int_arr, bigDecimal->ch_dec_arr))
       std::cout << "-";
-    if(bigDecimal->ch_dec_arr.length() == 1 && bigDecimal->ch_dec_arr[0] == '0')
+    if(strlen(bigDecimal->ch_dec_arr) == 1 && bigDecimal->ch_dec_arr[0] == '0')
       out << bigDecimal->ch_int_arr << ".0" << bigDecimal->ch_dec_arr << std::endl;
     else
       out << bigDecimal->ch_int_arr << "." << bigDecimal->ch_dec_arr << std::endl;
@@ -1085,59 +985,45 @@ class BigDecimal
     return out;
   }
 
-  
+  static bool check_all_zero(char *int_arr, char *dec_arr)
+  {
+    for(int i = 0;i < strlen(int_arr);i++)
+    {
+      if(int_arr[i] != '0')
+        return false;
+    }
+
+    for(int i = 0;i < strlen(dec_arr);i++)
+    {
+      if(dec_arr[i] != '0')
+        return false;
+    }
+
+    return true;
+  }
 
   private:
-  std::string ch_int_arr, ch_dec_arr;
+  char ch_int_arr[10000], ch_dec_arr[10000];
   bool positive = true;
 };
 
 
 
 
-int main() {
+int main()
+{
+  BigDecimal a, b;
 
-  //freopen("input.txt", "r", stdin);
-  //freopen("output.txt", "w", stdout);
+  while(std::cin >> &a >> &b)
+  {
 
+    //std::cout << a + &b << std::endl;
+    //std::cout << a - &b << std::endl;
+    //std::cout << a * &b << std::endl;
+    a ^ &b;
+    //std::cout << a / &b << std::endl;
+    //add(a_int, a_dec, b_int, b_dec);
 
-  BigDecimal *bigDecimal1 = new BigDecimal();
-  BigDecimal *bigDecimal2 = new BigDecimal();
-  BigDecimal *output;
-  char operation;
-  while(std::cin >> bigDecimal1 >> operation >> bigDecimal2) {
-    switch (operation) {
-    case '+':
-      output = (*bigDecimal1 + bigDecimal2);
-      std::cout << output;
-      delete output;
-      break;
-    case '-':
-      output = (*bigDecimal1 - bigDecimal2);
-      std::cout << output;
-      delete output;
-      break;
-    case '*':
-      output = (*bigDecimal1 * bigDecimal2);
-      std::cout << output;
-      delete output;
-      break;
-    case '/':
-      output = (*bigDecimal1 / bigDecimal2);
-      std::cout << output;
-      delete output;
-      break;
-    case '^':
-      output = (*bigDecimal1 ^ bigDecimal2);
-      std::cout << output;
-      delete output;
-      break;
-    default:
-      break;
-    }
+    
   }
-
-  delete bigDecimal1;
-  delete bigDecimal2;
-  return 0;
 }

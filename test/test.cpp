@@ -1,15 +1,16 @@
 #include<iostream>
-#include<cstring>
+
 
 int main()
 {
-    char input[10000] = "008810", buf[10000]="1894=15895782345789=14";
-    while(input[0] == '0')
+    std::string a, b = "1";
+    a.resize(10);
+    while(a.length() < 20)
     {
-        strcpy(buf, input+1);
-        strcpy(input, buf);
-        std::cout << input << std::endl;
+        a += std::to_string(3);
+        std::cout << a << std::endl;
     }
+    std::cout << a.capacity() << std::endl;
 
     /*char input2[10000] = "12345";
     strcpy(input2+strlen(input2), "6");
