@@ -1,9 +1,24 @@
+#include<cmath>
+#include<iostream>
+#include<iomanip>
+#include<cstring>
+#include<stack>
+
+//(-100)-((-10)*10))
+//0.1+0.035+8*2(-
+//((((-8)(/3)*0.5))^10
+//-0.1+0.035+8*2
+
+
+//EOF的問題
+//https://latedev.wordpress.com/2012/12/04/all-about-eof/
+
 #include<cstdio>
 #include<iostream>
 #include<cstring>
 #include<string>
 
-#define SIZE 1000
+#define SIZE 10000
 
 class BigDecimal
 {
@@ -20,6 +35,10 @@ class BigDecimal
     this->ch_int_arr = input.ch_int_arr;
     this->ch_dec_arr = input.ch_dec_arr;
     this->positive = input.positive;
+  }
+  BigDecimal(std::string input)
+  {
+    set_substr(&input, &this->ch_int_arr, &this->ch_dec_arr);
   }
 
 
@@ -51,7 +70,7 @@ class BigDecimal
     if(a->ch_int_arr.length() < b->ch_int_arr.length())
       return false;
 
-    for(int i = 0;i <= a->ch_int_arr.length() || i << b->ch_int_arr.length();i++)
+    for(int i = 0;i <= a->ch_int_arr.length();i++)
     {
       if(a->ch_int_arr[i] > b->ch_int_arr[i])
         return true;
@@ -66,7 +85,7 @@ class BigDecimal
     if(a->ch_dec_arr.length() < b->ch_dec_arr.length())
       return false;
 
-    for(int i = 0;i <= a->ch_dec_arr.length() || i << b->ch_dec_arr.length();i++)
+    for(int i = 0;i <= a->ch_dec_arr.length();i++)
     {
       if(a->ch_dec_arr[i] > b->ch_dec_arr[i])
         return true;
@@ -136,8 +155,11 @@ class BigDecimal
   }
 
   //想法，把小數轉成整數後計算
-  static void banker_rounding(std::string *a, std::string *b)
+  static void banker_rounding(BigDecimal *input)
   {
+
+    std::string *a = &input->ch_int_arr, *b = &input->ch_dec_arr;
+
     char i_arr[a->length()+1], d_arr[b->length()+1];
     strcpy(i_arr, a->c_str());
     strcpy(d_arr, b->c_str());
@@ -321,6 +343,13 @@ class BigDecimal
     delete buf;
   }
 
+
+  //把小數轉為整數，並記錄兩個數字的位數
+  //可以先把每個位數相乘，之後再處理進位
+  //(index從小到大放置數字)
+  //直到最後，再把小數位放回
+  //可能為零，小於一，或大於一
+
   BigDecimal* operator*(const BigDecimal *input) const
   {
     int decimal_digit = this->ch_dec_arr.length() + input->ch_dec_arr.length();
@@ -346,7 +375,6 @@ class BigDecimal
         int buf_b = num_b[j] - '0';
         //std::cout << "i:" << i  << " j:" << j << std::endl;
         //std::cout << "buf_a:" << buf_a << "buf_b:" << buf_b << std::endl;
-
 
         calc[num_a.length()-1-i+num_b.length()-1-j] += (buf_a * buf_b);
         //std::cout << "calc:" << calc[strlen(num_a)-1-i+strlen(num_b)-1-j] << std::endl;
@@ -451,8 +479,17 @@ class BigDecimal
 
   /*
   1.將小數改成整數，再開始進行除法
+  （順便把前面的零拿掉）
   2.處理整數部分
+  藉由使用迭代器，找到目前的比較數
+  之後再拿除數與此比較數比較
+  如果比較大，就用小一倍的數相減
+  減完後，放回被除數
+  並更新迭代器
   3.處理小數部分
+  主要與整數部分做法相同
+  差別在於，我們需要增加被除數的零
+  （使用迭代器需要注意字串是否resize，如果有就需要更新迭代器）
   */
   BigDecimal* operator/(const BigDecimal *input)
   {
@@ -707,9 +744,62 @@ class BigDecimal
     delete buf;
   }
 
+  /*
+  將指數次方的整數與小數分開
+  整數直接用乘的
+  小數則分成lna 與 e^x 計算
+  */
   BigDecimal* operator^(const BigDecimal *input) const
   {
+    BigDecimal *input_special;
     BigDecimal num_1("1","0"), num_2("2","0");
+    //此數為1^b，且b為整數
+    //std::cout << this->ch_int_arr << std::endl;
+    //std::cout << this->ch_dec_arr << std::endl;
+    //std::cout << input->ch_dec_arr << std::endl;
+    if(this->ch_int_arr == "1" && (this->ch_dec_arr == "0" || this->ch_dec_arr == "00") && (input->ch_dec_arr == "0" || input->ch_dec_arr == "00"))
+    {
+      //std::cout << "1^b\n";
+      //std::cout << (input->ch_int_arr[input->ch_int_arr.length()-1] - '0') % 2 << std::endl;
+      //b為奇數
+      if((input->ch_int_arr[input->ch_int_arr.length()-1] - '0') % 2 == 1)
+      {
+        if(this->positive == true)
+        {
+          input_special = new BigDecimal("1","0");
+          return input_special;
+        }
+        else
+        {
+          input_special = new BigDecimal("1","0");
+          input_special->positive = false;
+          return input_special;
+        }
+      }
+      //b為偶數
+      else if((input->ch_int_arr[input->ch_int_arr.length()-1] - '0') % 2 == 0)
+      {
+        input_special = new BigDecimal("1","0");
+        return input_special;
+      }
+    }
+    //此數為a^0，且a為正數
+    if(input->ch_int_arr == "0" && (input->ch_dec_arr == "0" || input->ch_dec_arr == "00") && input->positive == true)
+    {
+      input_special = new BigDecimal("1","0");
+      return input_special;
+    }
+    //此數為a^0，且a為負數
+    else if(input->ch_int_arr == "0" && (input->ch_dec_arr == "0" || input->ch_dec_arr == "00") && input->positive == false)
+    {
+      input_special = new BigDecimal("1","0");
+      BigDecimal *buf_6 = num_1 / input_special;
+      delete input_special;
+      input_special = buf_6;
+      return input_special;
+    }
+
+   
     BigDecimal *int_res = new BigDecimal("1","0"), *iter = new BigDecimal("0","0");
 
     //整數指數
@@ -778,10 +868,10 @@ class BigDecimal
     BigDecimal input_dec("0", input->ch_dec_arr);
     BigDecimal *e_power = *ln_result * &input_dec;
 
-    BigDecimal *counter = new BigDecimal("3000","0");
+    BigDecimal *counter = new BigDecimal("100","0");
     BigDecimal *result = new BigDecimal("1","0");
 
-    for(int round = 3000;round > 0;round--)
+    for(int round = 100;round > 0;round--)
     {
       //std::cout << "round:" << round << std::endl;
       BigDecimal *buf_4 = *e_power * result;
@@ -807,11 +897,25 @@ class BigDecimal
     delete int_res;
     delete iter;
 
+    BigDecimal *buf_5;
+    if(input->positive == false)
+    {
+      buf_5 = num_1 / final_res;
+      delete final_res;
+      final_res = buf_5;
+    }
+
     return final_res;
   }
 
 
-  //預期為兩個正數加法
+  //分成整數加法與小數加法
+  //1.整數加法
+  //(index從小到大)
+  //2.小數加法
+  //(index從大到小)
+  //需要處理小數進位到整數的可能
+
   BigDecimal* add(std::string a_i_arr, std::string a_d_arr , std::string b_i_arr, std::string b_d_arr) const
   {
     //結果字串
@@ -922,6 +1026,11 @@ class BigDecimal
   {
     //結果字串
     std::string res_int, res_dec;
+
+    //std::cout << "a_i_arr:" << a_i_arr << " len:" << a_i_arr.length() << std::endl;
+    //std::cout << "a_d_arr:" << a_d_arr << "len:" << a_d_arr.length() << std::endl;
+    //std::cout << "b_i_arr:" << b_i_arr << "len:" << b_i_arr.length() << std::endl;
+    //std::cout << "b_d_arr:" << b_d_arr << "len:" << b_d_arr.length() << std::endl;
 
     //計算用的陣列
     int calc_int_arr[SIZE]={0}, calc_dec_arr[SIZE]={0};
@@ -1042,38 +1151,18 @@ class BigDecimal
     return true;
   }
 
-  friend std::istream &operator>>(std::istream &in, BigDecimal *data)
+  void opposite_sign()
   {
-    std::string input;
-    in >> input;
-
-    //此數為負數
-    if(input[0] == '-')
-    {
-      //std::cout << "This is negative number\n";
-      input.erase(0, 1);
-      data->positive = false;
-    }
+    if(this->positive == true)
+      this->positive = false;
     else
-    {
-      data->positive = true;
-    }
-
-
-    //把整數與小數切割
-    set_substr(&input, &data->ch_int_arr, &data->ch_dec_arr);
-
-    //std::cout << "int_arr"<<data->ch_int_arr << std::endl;
-    //std::cout << "dec_arr"<<data->ch_dec_arr << std::endl;
-    return in;
+      this->positive = true;
   }
 
   friend std::ostream &operator<<(std::ostream &out, BigDecimal *bigDecimal)
   {
     if(bigDecimal == NULL)
       return out;
-    
-    banker_rounding(&bigDecimal->ch_int_arr, &bigDecimal->ch_dec_arr);
 
     if(bigDecimal->positive == false && !check_all_zero(bigDecimal->ch_int_arr, bigDecimal->ch_dec_arr))
       std::cout << "-";
@@ -1093,51 +1182,280 @@ class BigDecimal
 };
 
 
+int percedence(char ch)
+{
+  if(ch == '^')
+    return 0;
+  else if(ch == '*' || ch == '/')
+    return 1;
+  else if(ch == '+' || ch == '-')
+    return 2;
+  else if(ch == '(')
+    return 3;
 
+  return -1;
+}
 
-int main() {
+bool check_symbol(char ch)
+{
+  char table[] = {'+','-','*','/','^','(',')','.'};
+  for(int i = 0;i < 8;i++)
+  {
+    if(ch == table[i])
+      return true;
+  }
+  
+  return false;
+}
 
-  //freopen("input.txt", "r", stdin);
-  //freopen("output.txt", "w", stdout);
-
-
-  BigDecimal *bigDecimal1 = new BigDecimal();
-  BigDecimal *bigDecimal2 = new BigDecimal();
-  BigDecimal *output;
-  char operation;
-  while(std::cin >> bigDecimal1 >> operation >> bigDecimal2) {
-    switch (operation) {
+BigDecimal* calculation(char ch, BigDecimal* a, BigDecimal* b)
+{
+  switch(ch)
+  {
     case '+':
-      output = (*bigDecimal1 + bigDecimal2);
-      std::cout << output;
-      delete output;
-      break;
+      return *b + a;
     case '-':
-      output = (*bigDecimal1 - bigDecimal2);
-      std::cout << output;
-      delete output;
-      break;
+      return *b - a;
     case '*':
-      output = (*bigDecimal1 * bigDecimal2);
-      std::cout << output;
-      delete output;
-      break;
+      return *b * a;
     case '/':
-      output = (*bigDecimal1 / bigDecimal2);
-      std::cout << output;
-      delete output;
-      break;
+      return *b / a;
     case '^':
-      output = (*bigDecimal1 ^ bigDecimal2);
-      std::cout << output;
-      delete output;
-      break;
+      return *b ^ a;
     default:
-      break;
+      return 0;
+  }
+}
+
+class arithmetic{
+  public:
+  void convert_var()
+  {
+
+    //變數array，使用ASCII當作index
+    int base_index = 'A';
+    char *start = input, *end = input;
+    
+    //使用strtod尋找字串中的小數，如果該字元非小數，則繼續迭代
+    while(*start != '\0')
+    {
+       if(!isdigit(*start))
+        start++;
+       else
+       {
+        //找到數字
+        strtod(start, &end);
+        //定義變數
+        char index[2] = {(char)base_index ,'\0'};
+        //以此變數作為index放入數字
+        memset(buf, 0, 10000);
+        strncpy(buf, start, end-start);
+        std::string sub_digit = buf;
+        //std::cout << sub_digit << std::endl;
+        BigDecimal *new_one = new BigDecimal(sub_digit);
+        var_array[base_index] = new_one;
+
+        //複製字串
+        strcpy(buf, end);
+        strcpy(start, index);
+        strcpy(start+1, buf);
+        base_index++;
+
+        //std::cout << "Step 1:" << input << std::endl;
+       };
     }
   }
 
-  delete bigDecimal1;
-  delete bigDecimal2;
-  return 0;
+
+  bool infix_to_postfix()
+  {
+    try
+    {
+      std::stack<char> sym_stack;
+      for(int i = 0;i < strlen(input);i++)
+      {
+
+        //如果是變數，就放到post_fix array
+        if(input[i] >= 'A' && input[i] != '^')
+        {
+          //std::cout << "var\n";
+          char ch_buf[2] = {input[i], '\0'};
+          strcpy(postfix + strlen(postfix), ch_buf);
+        }
+        //需要先處裡負號的情況(前方為符號，且後方為變數，或者這個負號在最前方)
+        else if(input[i] == '-' && input[i+1] != '\0' && !check_symbol(input[i+1]) && (i == 0 || (check_symbol(input[i-1]) && !check_symbol(input[i+1]) )))
+        {
+          //std::cout << "minus\n";
+          var_array[input[i+1]]->opposite_sign();
+        }
+        //正常狀況，把符號放入(符號為左括號，或者stack為空，或者此符號比stack頂部符號)
+        else if(input[i] != ')' && (sym_stack.empty() || input[i] == '(' || percedence(input[i]) < percedence(sym_stack.top())
+          || sym_stack.top() == '^' && input[i] == '^'))
+        {
+          //std::cout << "push\n";
+          sym_stack.push(input[i]);
+        }
+        //遇到右括號
+        else if(input[i] == ')')
+        {
+          //std::cout << "right parenthesis\n";
+          while(sym_stack.empty() || sym_stack.top() != '(')
+          {
+            if(sym_stack.empty())
+            {
+              throw -1;
+            }
+              
+            char ch_buf[2] = {sym_stack.top(), '\0'};
+            strcpy(postfix + strlen(postfix), ch_buf);
+            sym_stack.pop();
+          }
+
+          //左括號拿掉
+          sym_stack.pop();
+        }
+        //遇到順序比較低的運算子
+        else
+        {
+          //拿符號直到stack為空，或者順序比stack符號小
+          while(!sym_stack.empty() && percedence(input[i]) >= percedence(sym_stack.top()))
+          {
+            char ch_buf[2] = {sym_stack.top(), '\0'};
+            strcpy(postfix + strlen(postfix), ch_buf);
+            sym_stack.pop();
+          }
+          sym_stack.push(input[i]);
+        }
+
+        //print("for stack", sym_stack);
+        //std::cout << postfix << std::endl;
+      }
+
+      //把剩下的符號拿出
+      while(!sym_stack.empty())
+      {
+        char ch_buf[2] = {sym_stack.top(), '\0'};
+        strcpy(postfix + strlen(postfix), ch_buf);
+        sym_stack.pop();
+      }
+
+    //print("final stack", sym_stack);
+    //std::cout << postfix << std::endl;
+    }
+    catch(int error_code)
+    {
+      if(error_code == -1)
+      {
+        std::cout << "ERROR\n";
+        memset(postfix, 0, 10000);
+        return 0;
+      }
+    }
+
+    return 1;
+  }
+
+  bool calc()
+  {
+    try
+    {
+      std::stack<BigDecimal*> calc;
+      for(int i = 0;i < strlen(postfix);i++)
+      {
+        if(postfix[i] == '(')
+          throw -1;
+        else if(!check_symbol(postfix[i]))
+          calc.push(var_array[postfix[i]]);
+        else
+        {
+          BigDecimal* var_a, *var_b;
+
+          if(calc.empty())
+            throw -1;
+          else
+          {
+            var_a = calc.top();
+            calc.pop();
+          }
+          
+          if(calc.empty())
+          {
+            delete var_a;
+            throw -1;
+          }
+          else
+          {
+            var_b = calc.top();
+            calc.pop();
+          }
+
+          //std::cout << "var_a:" << var_a;
+          //std::cout << "var_b:" << var_b;
+
+          BigDecimal *result = calculation(postfix[i], var_a, var_b);
+          result->banker_rounding(result);
+          calc.push(result);
+
+          delete var_a;
+          delete var_b;
+        }
+
+        //(((-8)/3)*0.5)^10
+        //std::cout << postfix[i] << std::endl;
+        //print("calc stack", calc);
+      }
+      std::cout << std::fixed << std::setprecision(2) << calc.top();
+
+      memset(postfix, 0, 10000);
+    }
+    catch(int error_code)
+    {
+      if(error_code == -1)
+      {
+        std::cout << "ERROR\n";
+        memset(postfix, 0, 10000);
+        return 0;
+      }
+    }
+    return 1;
+  }
+
+  bool read_input()
+  {
+    std::cin >> input;
+    return std::cin.eof();
+  }
+
+  private:
+  BigDecimal *var_array[128];
+  char input[10000], buf[10000], postfix[10000];
+  private:
+};
+
+int main()
+{
+
+  freopen("input.txt", "r", stdin);
+  freopen("output(stl).txt", "w", stdout);
+  
+  int is_eof = 0;
+  arithmetic item;
+  //item.read_input();
+  
+  //每一行運算式
+  while(!is_eof)
+  {
+    is_eof = item.read_input();
+
+    //1.把全部的數字轉成變數
+    item.convert_var();
+    
+    //2.把infix轉成postfix
+    if(!item.infix_to_postfix())
+      continue;
+
+    //3.開始計算，並得出結果
+    if(!item.calc())
+      continue;
+  }
 }
