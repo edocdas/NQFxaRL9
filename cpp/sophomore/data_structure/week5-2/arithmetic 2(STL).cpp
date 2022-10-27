@@ -208,6 +208,7 @@ class BigDecimal
 
     dot_place = strchr(ch, '.');
     strncpy(i_arr, ch, dot_place-ch);
+    i_arr[dot_place-ch] = '\0';
     strcpy(d_arr, dot_place+1);
 
 
@@ -1435,8 +1436,8 @@ class arithmetic{
 int main()
 {
 
-  freopen("input.txt", "r", stdin);
-  freopen("output(stl).txt", "w", stdout);
+  //freopen("input.txt", "r", stdin);
+  //freopen("output(stl).txt", "w", stdout);
   
   int is_eof = 0;
   arithmetic item;
