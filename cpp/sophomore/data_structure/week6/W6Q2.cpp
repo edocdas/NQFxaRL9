@@ -295,7 +295,7 @@ template<class T>
 class TreeNode {
   public:
     friend class BinarySearchTree<T>;
-    TreeNode(T input_data): data(input_data){}
+    TreeNode(int input_data): data(input_data){}
 
   private:
     T data;
@@ -456,9 +456,9 @@ class BinarySearchTree : public binarySearchTree<T> {
         //std::cout << "Preorder\n";
 
         if(order_str.length() == 0)
-            order_str += this->root->data;
+            order_str += std::to_string(this->root->data);
         else
-            order_str += "," + this->root->data;
+            order_str += "," + std::to_string(this->root->data);
 
         if(this->root->left != nullptr)
             preorder(this->root->left);
@@ -472,9 +472,9 @@ class BinarySearchTree : public binarySearchTree<T> {
     void preorder(TreeNode<T> *cur_node)
     {
         if(order_str.length() == 0)
-            order_str += cur_node->data;
+            order_str += std::to_string(cur_node->data);
         else
-            order_str += "," + cur_node->data;
+            order_str += "," + std::to_string(cur_node->data);
 
         if(cur_node->left != nullptr)
             preorder(cur_node->left);
@@ -490,9 +490,9 @@ class BinarySearchTree : public binarySearchTree<T> {
             inorder(this->root->left);
 
         if(order_str.length() == 0)
-            order_str += this->root->data;
+            order_str += std::to_string(this->root->data);
         else
-            order_str += "," + this->root->data;
+            order_str += "," + std::to_string(this->root->data);
 
         if(this->root->right != nullptr)
             inorder(this->root->right);
@@ -507,9 +507,9 @@ class BinarySearchTree : public binarySearchTree<T> {
             inorder(cur_node->left);
 
         if(order_str.length() == 0)
-            order_str += cur_node->data;
+            order_str += std::to_string(cur_node->data);
         else
-            order_str += "," + cur_node->data;
+            order_str += "," + std::to_string(cur_node->data);
 
         if(cur_node->right != nullptr)
             inorder(cur_node->right);
@@ -526,9 +526,9 @@ class BinarySearchTree : public binarySearchTree<T> {
             postorder(this->root->right);
 
         if(order_str.length() == 0)
-            order_str += this->root->data;
+            order_str += std::to_string(this->root->data);
         else
-            order_str += "," + this->root->data;
+            order_str += "," + std::to_string(this->root->data);
 
         std::cout << order_str << std::endl;
         order_str.clear();
@@ -542,9 +542,9 @@ class BinarySearchTree : public binarySearchTree<T> {
             postorder(cur_node->right);
 
         if(order_str.length() == 0)
-            order_str += cur_node->data;
+            order_str += std::to_string(cur_node->data);
         else
-            order_str += "," + cur_node->data;
+            order_str += "," + std::to_string(cur_node->data);
     }
 
     void levelorder()
@@ -558,9 +558,9 @@ class BinarySearchTree : public binarySearchTree<T> {
             node.dequeue();
 
             if(order_str.length() == 0)
-                order_str += buf->data;
+                order_str += std::to_string(buf->data);
             else
-                order_str += "," + buf->data;
+                order_str += "," + std::to_string(buf->data);
 
             if(buf->left != nullptr)
                 node.enqueue(buf->left);
@@ -576,29 +576,29 @@ class BinarySearchTree : public binarySearchTree<T> {
     void deSerialize(std::string tree)
     {
       std::stringstream comma_split(tree);
-      std::string sub_str;
-      Queue<std::string> data_queue;
+      std::string num;
+      Queue<int> int_queue;
       Queue<TreeNode<T>*> next_queue;
 
       //把字串分開，並轉成數字(NULL表示成INT_MIN)
-      while(std::getline(comma_split, sub_str, ','))
+      while(std::getline(comma_split, num, ','))
       {
-        if(sub_str == "NULL")
-          data_queue.enqueue("NULL");
+        if(num == "NULL")
+          int_queue.enqueue(INT_MIN);
         else
-          data_queue.enqueue(sub_str);
+          int_queue.enqueue(stoi(num));
       }
 
-      std::string buf;
+      int buf;
       bool set_root = true;
-      while(!data_queue.isEmpty())
+      while(!int_queue.isEmpty())
       {
         TreeNode<T>* cur_node;
 
         //第一次放樹根
         if(set_root)
         {
-          this->setRoot(data_queue.dequeue());
+          this->setRoot(int_queue.dequeue());
           set_root = false;
 
           cur_node = this->root;
@@ -612,14 +612,14 @@ class BinarySearchTree : public binarySearchTree<T> {
         }
 
         //左node可放
-        if(!data_queue.isEmpty() && (buf = data_queue.dequeue()) != "NULL")
+        if(!int_queue.isEmpty() && (buf = int_queue.dequeue()) != INT_MIN)
         {
           cur_node->left = new TreeNode<T>(buf);
           next_queue.enqueue(cur_node->left);
           //std::cout << "left node place:" << cur_node->left->data << std::endl;
         }
         //右node可放
-        if(!data_queue.isEmpty() && (buf = data_queue.dequeue()) != "NULL")
+        if(!int_queue.isEmpty() && (buf = int_queue.dequeue()) != INT_MIN)
         {
           cur_node->right = new TreeNode<T>(buf);
           next_queue.enqueue(cur_node->right);
@@ -628,6 +628,25 @@ class BinarySearchTree : public binarySearchTree<T> {
       }
     }
 
+    /*void deSerialize(std::string tree)
+    {
+      std::stringstream comma_split(tree);
+      std::string num;
+      Queue<T> int_queue;
+
+      //把字串分開，並轉成數字
+      while(std::getline(comma_split, num, ','))
+      {
+        if(num != "NULL")
+          int_queue.enqueue(stoi(num));
+      }
+
+      this->setRoot(int_queue.dequeue());
+      while(!int_queue.isEmpty())
+      {
+        this->insert(int_queue.dequeue());
+      }
+    }*/
 
     std::string serialize()
     {
@@ -644,9 +663,9 @@ class BinarySearchTree : public binarySearchTree<T> {
           else
           {
             if(order_str.length() == 0)
-              order_str += buf->data;
+              order_str += std::to_string(buf->data);
             else
-              order_str += "," + buf->data;
+              order_str += "," + std::to_string(buf->data);
 
             node.enqueue(buf->left);
 
@@ -672,13 +691,24 @@ int main()
   std::string line, buf;
   while(std::getline(std::cin, line))
   {
-    BinarySearchTree<std::string> tree;
-    tree.deSerialize(line);
-    
-    std::cout << "levelorder\n";
-    tree.levelorder();
-    std::cout << "inorder\n";
-    tree.inorder();
+    bool do_deserial = true;
+    BinarySearchTree<int> tree;
+    std::stringstream space_split(line);
+
+    while(std::getline(space_split, buf, ' '))
+    {
+      if(do_deserial)
+      {
+        tree.deSerialize(buf);
+        do_deserial = false;
+        continue;
+      }
+      
+      //tree.levelorder();
+      tree.insert(std::stoi(buf));
+      //std::cout << "insert:" << buf << std::endl;
+      //tree.levelorder();
+    }
 
     std::cout << tree.serialize() << std::endl;
   }

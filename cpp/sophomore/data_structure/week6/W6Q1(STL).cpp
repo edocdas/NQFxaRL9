@@ -302,7 +302,7 @@ int main()
     a.insert(12);
     a.insert(20);*/
 
-    /*a.setRoot(1);
+    a.setRoot(1);
 
 
     a.preorder();
@@ -316,17 +316,16 @@ int main()
     std::cout << a.serach(4) << std::endl;
     std::cout << a.serach(5) << std::endl;
     std::cout << a.serach(6) << std::endl;
-    std::cout << a.serach(7) << std::endl;*/
+    std::cout << a.serach(7) << std::endl;
 
-	a.setRoot(1);
-    //std::cout << a.insert(1) << std::endl;
-    std::cout << a.insert(4) << std::endl;
-    std::cout << a.insert(3) << std::endl;
     std::cout << a.insert(2) << std::endl;
-    std::cout << a.insert(6) << std::endl;
+    std::cout << a.insert(3) << std::endl;
+    std::cout << a.insert(4) << std::endl;
     std::cout << a.insert(5) << std::endl;
-    std::cout << a.insert(8) << std::endl;
-    std::cout << a.insert(7) << std::endl;
+    std::cout << a.insert(1) << std::endl;
+    std::cout << a.insert(2) << std::endl;
+    std::cout << a.insert(3) << std::endl;
+    std::cout << a.insert(4) << std::endl;
+    std::cout << a.insert(5) << std::endl;
 
-	a.postorder();
 }

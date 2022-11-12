@@ -1,6 +1,4 @@
 #include<iostream>
-#include<sstream>
-#include<climits>
 
 /**
  * A Node class of Doublely Linked List class
@@ -295,7 +293,7 @@ template<class T>
 class TreeNode {
   public:
     friend class BinarySearchTree<T>;
-    TreeNode(T input_data): data(input_data){}
+    TreeNode(int input_data): data(input_data){}
 
   private:
     T data;
@@ -352,18 +350,6 @@ class binarySearchTree {
      * @return true if found, false if not found
      */
     virtual bool serach(T target) = 0;
-
-    /**
-     * Deserialize the string to a tree with levelorder traversal
-     * @param tree to be deserialized
-     */
-    virtual void deSerialize(std::string tree) = 0;
-
-    /**
-     * Serialize the tree to a string with levelorder traversal
-     * @return the serialized string
-     */
-    virtual std::string serialize() = 0;
   protected:
     TreeNode<T> *root;
 };
@@ -456,9 +442,9 @@ class BinarySearchTree : public binarySearchTree<T> {
         //std::cout << "Preorder\n";
 
         if(order_str.length() == 0)
-            order_str += this->root->data;
+            order_str += std::to_string(this->root->data);
         else
-            order_str += "," + this->root->data;
+            order_str += "," + std::to_string(this->root->data);
 
         if(this->root->left != nullptr)
             preorder(this->root->left);
@@ -472,9 +458,9 @@ class BinarySearchTree : public binarySearchTree<T> {
     void preorder(TreeNode<T> *cur_node)
     {
         if(order_str.length() == 0)
-            order_str += cur_node->data;
+            order_str += std::to_string(cur_node->data);
         else
-            order_str += "," + cur_node->data;
+            order_str += "," + std::to_string(cur_node->data);
 
         if(cur_node->left != nullptr)
             preorder(cur_node->left);
@@ -490,9 +476,9 @@ class BinarySearchTree : public binarySearchTree<T> {
             inorder(this->root->left);
 
         if(order_str.length() == 0)
-            order_str += this->root->data;
+            order_str += std::to_string(this->root->data);
         else
-            order_str += "," + this->root->data;
+            order_str += "," + std::to_string(this->root->data);
 
         if(this->root->right != nullptr)
             inorder(this->root->right);
@@ -507,9 +493,9 @@ class BinarySearchTree : public binarySearchTree<T> {
             inorder(cur_node->left);
 
         if(order_str.length() == 0)
-            order_str += cur_node->data;
+            order_str += std::to_string(cur_node->data);
         else
-            order_str += "," + cur_node->data;
+            order_str += "," + std::to_string(cur_node->data);
 
         if(cur_node->right != nullptr)
             inorder(cur_node->right);
@@ -526,9 +512,9 @@ class BinarySearchTree : public binarySearchTree<T> {
             postorder(this->root->right);
 
         if(order_str.length() == 0)
-            order_str += this->root->data;
+            order_str += std::to_string(this->root->data);
         else
-            order_str += "," + this->root->data;
+            order_str += "," + std::to_string(this->root->data);
 
         std::cout << order_str << std::endl;
         order_str.clear();
@@ -542,11 +528,12 @@ class BinarySearchTree : public binarySearchTree<T> {
             postorder(cur_node->right);
 
         if(order_str.length() == 0)
-            order_str += cur_node->data;
+            order_str += std::to_string(cur_node->data);
         else
-            order_str += "," + cur_node->data;
+            order_str += "," + std::to_string(cur_node->data);
     }
 
+    //使用Queue實作，藉由把每個node放入Queue的方式，達到每層印出的效果
     void levelorder()
     {
         Queue<TreeNode<T>*> node;
@@ -555,12 +542,12 @@ class BinarySearchTree : public binarySearchTree<T> {
         while(!node.isEmpty())
         {
             TreeNode<T> *buf = node.front();
-            node.dequeue();
+             node.dequeue();
 
             if(order_str.length() == 0)
-                order_str += buf->data;
+                order_str += std::to_string(buf->data);
             else
-                order_str += "," + buf->data;
+                order_str += "," + std::to_string(buf->data);
 
             if(buf->left != nullptr)
                 node.enqueue(buf->left);
@@ -572,96 +559,6 @@ class BinarySearchTree : public binarySearchTree<T> {
         std::cout << order_str << std::endl;
         order_str.clear();
     }
-    
-    void deSerialize(std::string tree)
-    {
-      std::stringstream comma_split(tree);
-      std::string sub_str;
-      Queue<std::string> data_queue;
-      Queue<TreeNode<T>*> next_queue;
-
-      //把字串分開，並轉成數字(NULL表示成INT_MIN)
-      while(std::getline(comma_split, sub_str, ','))
-      {
-        if(sub_str == "NULL")
-          data_queue.enqueue("NULL");
-        else
-          data_queue.enqueue(sub_str);
-      }
-
-      std::string buf;
-      bool set_root = true;
-      while(!data_queue.isEmpty())
-      {
-        TreeNode<T>* cur_node;
-
-        //第一次放樹根
-        if(set_root)
-        {
-          this->setRoot(data_queue.dequeue());
-          set_root = false;
-
-          cur_node = this->root;
-          //std::cout << "root_node:" << cur_node->data << std::endl;
-        }
-        //之後的node
-        else
-        {
-          cur_node = next_queue.dequeue();
-          //std::cout << "cur_node:" << cur_node->data << std::endl;
-        }
-
-        //左node可放
-        if(!data_queue.isEmpty() && (buf = data_queue.dequeue()) != "NULL")
-        {
-          cur_node->left = new TreeNode<T>(buf);
-          next_queue.enqueue(cur_node->left);
-          //std::cout << "left node place:" << cur_node->left->data << std::endl;
-        }
-        //右node可放
-        if(!data_queue.isEmpty() && (buf = data_queue.dequeue()) != "NULL")
-        {
-          cur_node->right = new TreeNode<T>(buf);
-          next_queue.enqueue(cur_node->right);
-          //std::cout << "right node place:" << cur_node->right->data << std::endl;
-        }
-      }
-    }
-
-
-    std::string serialize()
-    {
-      Queue<TreeNode<T>*> node;
-      node.enqueue(this->root);
-
-      while(!node.isEmpty())
-      {
-          TreeNode<T> *buf = node.dequeue();
-          if(buf == 0)
-          {
-            order_str += ",NULL";
-          }
-          else
-          {
-            if(order_str.length() == 0)
-              order_str += buf->data;
-            else
-              order_str += "," + buf->data;
-
-            node.enqueue(buf->left);
-
-            node.enqueue(buf->right);
-          }
-      }
-
-      std::string return_str = order_str;
-      order_str.clear();
-
-      //把多餘的,NULL刪掉
-      while(return_str.find_last_not_of("NULL") == return_str.length()-5)
-        return_str.resize(return_str.length()-5);
-      return return_str;
-    }
 
 private:
     std::string order_str;
@@ -669,17 +566,49 @@ private:
 
 int main()
 {
-  std::string line, buf;
-  while(std::getline(std::cin, line))
-  {
-    BinarySearchTree<std::string> tree;
-    tree.deSerialize(line);
-    
-    std::cout << "levelorder\n";
-    tree.levelorder();
-    std::cout << "inorder\n";
-    tree.inorder();
+    BinarySearchTree<int> a;
+    binarySearchTree<int> *b = new BinarySearchTree<int>;
+    /*a.setRoot(1);
+    a.insert(6);
+    a.insert(2);
+    a.insert(5);
+    a.insert(3);
+    a.insert(4);*/
 
-    std::cout << tree.serialize() << std::endl;
-  }
+    /*a.setRoot(10);
+    a.insert(9);
+    a.insert(11);
+    a.insert(3);
+    a.insert(1);
+    a.insert(4);
+    a.insert(15);
+    a.insert(12);
+    a.insert(20);*/
+
+    a.setRoot(1);
+
+
+    a.preorder();
+    a.inorder();
+    a.postorder();
+    a.levelorder();
+
+    std::cout << a.serach(1) << std::endl;
+    std::cout << a.serach(2) << std::endl;
+    std::cout << a.serach(3) << std::endl;
+    std::cout << a.serach(4) << std::endl;
+    std::cout << a.serach(5) << std::endl;
+    std::cout << a.serach(6) << std::endl;
+    std::cout << a.serach(7) << std::endl;
+
+    std::cout << a.insert(2) << std::endl;
+    std::cout << a.insert(3) << std::endl;
+    std::cout << a.insert(4) << std::endl;
+    std::cout << a.insert(5) << std::endl;
+    std::cout << a.insert(1) << std::endl;
+    std::cout << a.insert(2) << std::endl;
+    std::cout << a.insert(3) << std::endl;
+    std::cout << a.insert(4) << std::endl;
+    std::cout << a.insert(5) << std::endl;
+
 }
