@@ -1,13 +1,298 @@
-#include<cstdio>
+#include <asm-generic/errno.h>
 #include<iostream>
+#include<sstream>
+#include<climits>
 #include<cstring>
-#include<string>
 
-#define SIZE 1000
+#define SIZE 10000
+
+/**
+ * A Node class of Doublely Linked List class
+ */
+template<class T>
+class Node {
+  public:
+
+  /**
+   * Construct a new Node object with no parameter
+   */
+  Node() {}
+
+  /**
+   * Construct a new Node object with parameter
+   * @param data: data to put in
+   */
+  Node(T data)
+  {
+    this->data = data;
+  }
+
+  /**
+   * Construct a new Node object with parameters
+   * @param data: data to put in
+   * @param prev: pointer to the previous node
+   * @param next: pointer to the next node
+   */
+  Node(T data, Node<T> *prev, Node<T> *next)
+  {
+    this->prev = prev;
+    this->next = next;
+    this->data = data;
+  }
+
+  //更改成新的tail
+  void setTail(Node<T> *new_tail)
+  {
+    next = new_tail;
+  }
+
+  //更改成新的head
+  void setHead(Node<T> *new_head)
+  {
+    prev = new_head;
+  }
+
+  //回傳下一個node
+  Node<T>* getNext()
+  {
+    return next;
+  }
+
+  //回傳下一個node
+  Node<T>* getPrev()
+  {
+    return prev;
+  }
+
+  //回傳node裡的資料
+  T getData()
+  {
+    return data;
+  }
+
+  private: 
+    Node<T> *prev = nullptr;
+    Node<T> *next = nullptr;
+    T data;
+};
+
+/**
+ * A Doublely Linked List class
+ */
+template<class T>
+class LinkedList {
+  public:
+
+  /**
+   * Construct a new LinkedList object with no parameter
+   */
+  LinkedList() {}
+
+  /**
+   * Add a node to the tail of the linked list
+   * @param data: data to put in
+   */
+  void addToTail(T data)
+  {
+    if(tail == nullptr)
+    {
+    tail = new Node<T>(data);
+    head = tail;
+    }
+    else {
+      Node<T> *new_tail = new Node<T>(data);
+      tail->setTail(new_tail);
+      new_tail->setHead(tail);
+      tail = new_tail;
+    }
+  }
+
+  /**
+   * Add a node to the head of the linked list
+   * @param data: data to put in
+   */
+  void addToHead(T data)
+  {
+    if(head == nullptr)
+    {
+    head = new Node<T>(data);
+    tail = head;
+    }
+    else {
+      Node<T> *new_head = new Node<T>(data);
+      head->setHead(new_head);
+      new_head->setTail(head);
+      head = new_head;
+    }
+  }
+
+  /**
+   * Delete a node from the linked list with the given data from the head
+   * If there are no data to be deleted, then do nothing
+   * @param data: data to delete
+   */
+  void deleteData(T data)
+  {
+    Node<T> *iter = head;
+    while(iter != nullptr)
+    {
+      if(iter->getData() == data)
+      {
+        //更新node
+        if(iter->getPrev() != nullptr)
+          iter->getPrev()->setTail(iter->getNext());
+        if(iter->getNext() != nullptr)
+          iter->getNext()->setHead(iter->getPrev());
+
+        //更新head & tail
+        if(iter == head)
+        {
+          head = iter->getNext();
+        }
+        if(iter == tail)
+        {
+          tail = iter->getPrev();
+        }
+        
+        delete iter;
+
+        //任務完成
+        return;
+      }
+      else
+      {
+        iter = iter -> getNext();
+      }
+    }
+  }
+
+  /**
+   * Delete valid n nodes from the linked list with the given data from the head
+   * If there are no more data to be deleted, then just skip
+   * @param data: data to delete
+   * @param n: max number of nodes to delete
+   */
+  void deleteData(T data, int n)
+  {
+    for(int i = 0;i < n;i++)
+    {
+      deleteData(data);
+    }
+  }
+
+  T getfront()
+  {
+    return head->getData();
+  }
+
+  T getend()
+  {
+    return tail->getData();
+  }
+
+  bool isEmpty()
+  {
+    return head == nullptr ? true : false;
+  }
+
+  /**
+   * Overload the operator << to print out all the data in the linked list from the head
+   * There is a \n in the end of each print
+   * 
+   * Output example: 
+   * If your linked list data is 5, 4, 3, 2, 1
+   * then you should print out "(5, 4, 3, 2, 1)" with the content in quotes but without the quotes
+   */
+  friend std::ostream &operator<<(std::ostream &out, LinkedList * n)
+  {
+    Node<T> *iter = n->head;
+    int counter = 0;
+    out << "(";
+    while(iter != nullptr)
+    {
+      if(counter != 0)
+        out << ", ";
+      
+      out << iter->getData();
+      iter = iter->getNext();
+
+      counter++;
+    }
+    out << ")\n";
+
+    return out;
+  }
+
+  private: 
+    Node<T> *head = nullptr;
+    Node<T> *tail = nullptr;
+};
+
+template<class T>
+class Queue
+{
+  public:
+
+  /**
+   * Construct a new Queue object with no parameter
+   */
+  Queue()
+  {
+    list = new LinkedList<T>;
+  }
+
+  /**
+   * Add a data to queue
+   * @param data: data to be added to queue
+   */
+  void enqueue(T data)
+  {
+    list->addToTail(data);
+  }
+
+  /**
+   * Remove a data from queue and return it
+   * @return the data removed from queue
+   */
+  T dequeue()
+  {
+    T buf = list->getfront();
+    list->deleteData(buf);
+    return buf;
+  }
+
+  /**
+   * @return the first element in the queue
+   */
+  T front()
+  {
+    return list->getfront();
+  }
+
+  /**
+   * @return true if queue is empty, false otherwise
+   */
+  bool isEmpty()
+  {
+    return list->isEmpty();
+  }
+
+  friend std::ostream &operator<<(std::ostream &out, Queue * n)
+  {
+    out << n->list;
+
+    return out;
+  }
+
+  private: 
+    LinkedList<T> *list = nullptr;
+};
+
 
 class BigDecimal
 {
   public:
+  template<class T> friend class BinarySearchTree;
   BigDecimal() = default;
   BigDecimal(std::string int_arr, std::string dec_arr)
   {
@@ -20,6 +305,17 @@ class BigDecimal
     this->ch_int_arr = input.ch_int_arr;
     this->ch_dec_arr = input.ch_dec_arr;
     this->positive = input.positive;
+  }
+  BigDecimal(std::string input)
+  {
+    if(input[0] == '-')
+    {
+      std::string sub_str = input.substr(1);
+      set_substr(&sub_str, &this->ch_int_arr, &this->ch_dec_arr);
+      this->positive = false;
+    }
+    else
+      set_substr(&input, &this->ch_int_arr, &this->ch_dec_arr);
   }
 
 
@@ -51,7 +347,7 @@ class BigDecimal
     if(a->ch_int_arr.length() < b->ch_int_arr.length())
       return false;
 
-    for(int i = 0;i <= a->ch_int_arr.length() || i << b->ch_int_arr.length();i++)
+    for(int i = 0;i <= a->ch_int_arr.length();i++)
     {
       if(a->ch_int_arr[i] > b->ch_int_arr[i])
         return true;
@@ -66,7 +362,7 @@ class BigDecimal
     if(a->ch_dec_arr.length() < b->ch_dec_arr.length())
       return false;
 
-    for(int i = 0;i <= a->ch_dec_arr.length() || i << b->ch_dec_arr.length();i++)
+    for(int i = 0;i <= a->ch_dec_arr.length();i++)
     {
       if(a->ch_dec_arr[i] > b->ch_dec_arr[i])
         return true;
@@ -136,8 +432,11 @@ class BigDecimal
   }
 
   //想法，把小數轉成整數後計算
-  static void banker_rounding(std::string *a, std::string *b)
+  static void banker_rounding(BigDecimal *input)
   {
+
+    std::string *a = &input->ch_int_arr, *b = &input->ch_dec_arr;
+
     char i_arr[a->length()+1], d_arr[b->length()+1];
     strcpy(i_arr, a->c_str());
     strcpy(d_arr, b->c_str());
@@ -186,6 +485,7 @@ class BigDecimal
 
     dot_place = strchr(ch, '.');
     strncpy(i_arr, ch, dot_place-ch);
+    i_arr[dot_place-ch] = '\0';
     strcpy(d_arr, dot_place+1);
 
 
@@ -729,20 +1029,52 @@ class BigDecimal
   */
   BigDecimal* operator^(const BigDecimal *input) const
   {
-    BigDecimal *input_zero;
+    BigDecimal *input_special;
     BigDecimal num_1("1","0"), num_2("2","0");
-    if(input->ch_int_arr == "0" && input->ch_dec_arr == "0" && input->positive == true)
+    //此數為1^b，且b為整數
+    //std::cout << this->ch_int_arr << std::endl;
+    //std::cout << this->ch_dec_arr << std::endl;
+    //std::cout << input->ch_dec_arr << std::endl;
+    if(this->ch_int_arr == "1" && (this->ch_dec_arr == "0" || this->ch_dec_arr == "00") && (input->ch_dec_arr == "0" || input->ch_dec_arr == "00"))
     {
-      input_zero = new BigDecimal("1","0");
-      return input_zero;
+      //std::cout << "1^b\n";
+      //std::cout << (input->ch_int_arr[input->ch_int_arr.length()-1] - '0') % 2 << std::endl;
+      //b為奇數
+      if((input->ch_int_arr[input->ch_int_arr.length()-1] - '0') % 2 == 1)
+      {
+        if(this->positive == true)
+        {
+          input_special = new BigDecimal("1","0");
+          return input_special;
+        }
+        else
+        {
+          input_special = new BigDecimal("1","0");
+          input_special->positive = false;
+          return input_special;
+        }
+      }
+      //b為偶數
+      else if((input->ch_int_arr[input->ch_int_arr.length()-1] - '0') % 2 == 0)
+      {
+        input_special = new BigDecimal("1","0");
+        return input_special;
+      }
     }
-    else if(input->ch_int_arr == "0" && input->ch_dec_arr == "0" && input->positive == false)
+    //此數為a^0，且a為正數
+    if(input->ch_int_arr == "0" && (input->ch_dec_arr == "0" || input->ch_dec_arr == "00") && input->positive == true)
     {
-      input_zero = new BigDecimal("1","0");
-      BigDecimal *buf_6 = num_1 / input_zero;
-      delete input_zero;
-      input_zero = buf_6;
-      return input_zero;
+      input_special = new BigDecimal("1","0");
+      return input_special;
+    }
+    //此數為a^0，且a為負數
+    else if(input->ch_int_arr == "0" && (input->ch_dec_arr == "0" || input->ch_dec_arr == "00") && input->positive == false)
+    {
+      input_special = new BigDecimal("1","0");
+      BigDecimal *buf_6 = num_1 / input_special;
+      delete input_special;
+      input_special = buf_6;
+      return input_special;
     }
 
    
@@ -795,13 +1127,13 @@ class BigDecimal
 
       delete buf_3;
       
-      //std::cout << "integer:" << ln_result->ch_int_arr << std::endl;
-      //std::cout << "dec:" << ln_result->ch_dec_arr << std::endl;
+      //std::cout << "integer:" << result->ch_int_arr << std::endl;
+      //std::cout << "dec:" << result->ch_dec_arr << std::endl;
     }
 
     *ln_result *= &num_2;
-    std::cout << "integer:" << ln_result->ch_int_arr << std::endl;
-    std::cout << "dec:" << ln_result->ch_dec_arr << std::endl;
+    //std::cout << "integer:" << ln_result->ch_int_arr << std::endl;
+    //std::cout << "dec:" << ln_result->ch_dec_arr << std::endl;
     
     delete buf_1;
     delete buf_2;
@@ -837,7 +1169,7 @@ class BigDecimal
     delete ln_result;
     
     BigDecimal *final_res = *result * int_res;
-    std::cout << "final result:" << final_res->ch_int_arr << "." << final_res->ch_dec_arr << std::endl;
+    //std::cout << "final result:" << final_res->ch_int_arr << "." << final_res->ch_dec_arr << std::endl;
 
     delete result;
     delete int_res;
@@ -973,6 +1305,11 @@ class BigDecimal
     //結果字串
     std::string res_int, res_dec;
 
+    //std::cout << "a_i_arr:" << a_i_arr << " len:" << a_i_arr.length() << std::endl;
+    //std::cout << "a_d_arr:" << a_d_arr << "len:" << a_d_arr.length() << std::endl;
+    //std::cout << "b_i_arr:" << b_i_arr << "len:" << b_i_arr.length() << std::endl;
+    //std::cout << "b_d_arr:" << b_d_arr << "len:" << b_d_arr.length() << std::endl;
+
     //計算用的陣列
     int calc_int_arr[SIZE]={0}, calc_dec_arr[SIZE]={0};
     //紀錄進位與index
@@ -1092,30 +1429,26 @@ class BigDecimal
     return true;
   }
 
-  friend std::istream &operator>>(std::istream &in, BigDecimal *data)
+  void opposite_sign()
   {
-    std::string input;
-    in >> input;
-
-    //此數為負數
-    if(input[0] == '-')
-    {
-      //std::cout << "This is negative number\n";
-      input.erase(0, 1);
-      data->positive = false;
-    }
+    if(this->positive == true)
+      this->positive = false;
     else
-    {
-      data->positive = true;
-    }
+      this->positive = true;
+  }
+
+  std::string get_num()
+  {
+    std::string return_num;
+    if(this->positive == false && !check_all_zero(this->ch_int_arr, this->ch_dec_arr))
+      return_num += "-";
+    if(this->ch_dec_arr.length() == 1 && this->ch_dec_arr[0] == '0')
+      return_num += this->ch_int_arr + ".0" + this->ch_dec_arr;
+    else
+      return_num += this->ch_int_arr + "." + this->ch_dec_arr;
 
 
-    //把整數與小數切割
-    set_substr(&input, &data->ch_int_arr, &data->ch_dec_arr);
-
-    //std::cout << "int_arr"<<data->ch_int_arr << std::endl;
-    //std::cout << "dec_arr"<<data->ch_dec_arr << std::endl;
-    return in;
+    return return_num;
   }
 
   friend std::ostream &operator<<(std::ostream &out, BigDecimal *bigDecimal)
@@ -1123,14 +1456,12 @@ class BigDecimal
     if(bigDecimal == NULL)
       return out;
 
-    banker_rounding(&bigDecimal->ch_int_arr, &bigDecimal->ch_dec_arr);
-
     if(bigDecimal->positive == false && !check_all_zero(bigDecimal->ch_int_arr, bigDecimal->ch_dec_arr))
       std::cout << "-";
     if(bigDecimal->ch_dec_arr.length() == 1 && bigDecimal->ch_dec_arr[0] == '0')
-      out << bigDecimal->ch_int_arr << ".0" << bigDecimal->ch_dec_arr << std::endl;
+      out << bigDecimal->ch_int_arr << ".0" << bigDecimal->ch_dec_arr;
     else
-      out << bigDecimal->ch_int_arr << "." << bigDecimal->ch_dec_arr << std::endl;
+      out << bigDecimal->ch_int_arr << "." << bigDecimal->ch_dec_arr;
 
     return out;
   }
@@ -1144,50 +1475,535 @@ class BigDecimal
 
 
 
-
-int main() {
-
-  //freopen("input.txt", "r", stdin);
-  //freopen("output.txt", "w", stdout);
+template<class T> class BinarySearchTree;
 
 
-  BigDecimal *bigDecimal1 = new BigDecimal();
-  BigDecimal *bigDecimal2 = new BigDecimal();
-  BigDecimal *output;
-  char operation;
-  while(std::cin >> bigDecimal1 >> operation >> bigDecimal2) {
-    switch (operation) {
-    case '+':
-      output = (*bigDecimal1 + bigDecimal2);
-      std::cout << output;
-      delete output;
-      break;
-    case '-':
-      output = (*bigDecimal1 - bigDecimal2);
-      std::cout << output;
-      delete output;
-      break;
-    case '*':
-      output = (*bigDecimal1 * bigDecimal2);
-      std::cout << output;
-      delete output;
-      break;
-    case '/':
-      output = (*bigDecimal1 / bigDecimal2);
-      std::cout << output;
-      delete output;
-      break;
-    case '^':
-      output = (*bigDecimal1 ^ bigDecimal2);
-      std::cout << output;
-      delete output;
-      break;
-    default:
-      break;
+/**
+ * A TreeNode class of binarySearchTree class
+ */
+template<class T>
+class TreeNode {
+  public:
+    friend class BinarySearchTree<T>;
+    TreeNode(T input_data): data(input_data){}
+
+  private:
+    T data;
+    TreeNode<T> *left = nullptr;
+    TreeNode<T> *right = nullptr;
+};
+
+/**
+ * A binarySearchTree abstract class for BinarySearchTree class
+ */
+template<class T>
+class binarySearchTree {
+  public:
+    /**
+     * Print preorder traversal of the tree
+     * Format: "4,5,6,7". Data seperate by "," with no spaces between and without quotes
+     */
+    virtual void preorder() = 0;
+
+    /**
+     * Print inorder traversal of the tree
+     * Format: "4,5,6,7". Data seperate by "," with no spaces between and without quotes
+     */
+    virtual void inorder() = 0;
+
+    /**
+     * Print postorder traversal of the tree
+     * Format: "4,5,6,7". Data seperate by "," with no spaces between and without quotes
+     */
+    virtual void postorder() = 0;
+
+    /**
+     * Print levelorder traversal of the tree
+     * Format: "4,5,6,7". Data seperate by "," with no spaces between and without quotes
+     */
+    //virtual void levelorder() = 0;
+
+    /**
+     * Insert data into the tree if the value is not present
+     * @param data data to insert
+     * @return true if insert successfully, false if the value is already present
+     */
+    virtual bool insert(T data) = 0;
+
+    /**
+     * Set the value of the root
+     * @param data to set to root
+     */
+    virtual void setRoot(T data) = 0;
+
+    /**
+     * Search the tree for the given value
+     * @param target target to find
+     * @return true if found, false if not found
+     */
+    virtual bool serach(T target) = 0;
+
+    /**
+     * Deserialize the string to a tree with levelorder traversal
+     * @param tree to be deserialized
+     */
+    virtual void deSerialize(std::string tree) = 0;
+
+    /**
+     * Serialize the tree to a string with levelorder traversal
+     * @return the serialized string
+     */
+    virtual std::string serialize() = 0;
+  protected:
+    TreeNode<T> *root;
+};
+
+template<class T>
+class BinarySearchTree : public binarySearchTree<T> {
+  public:
+    void setRoot(T data)
+    {
+        this->root = new TreeNode<T>(data);
+        //std::cout << "root:" << this->root->data << std::endl;
     }
-  }
 
-  delete bigDecimal1;
-  delete bigDecimal2;
-  return 0;
+    bool insert(T data)
+    {
+        TreeNode<T> *iter = this->root, *new_node = new TreeNode<T>(data);
+        while(iter != nullptr)
+        {
+            //數字比目前node大
+            if(stoi(data) > stoi(iter->data))
+            {
+                //std::cout << "Bigger than node\n";
+
+                if(iter -> right != nullptr)
+                    iter = iter->right;
+                else
+                    {
+                        //std::cout << "Put right node\n";
+                        iter->right = new_node;
+                        return true;
+                    }
+            }
+            //數字比目前node小
+            else if(stoi(data) < stoi(iter->data))
+            {
+                //std::cout << "Smaller than node\n";
+
+                if(iter -> left != nullptr)
+                    iter = iter->left;
+                else
+                    {
+                        //std::cout << "Put left node\n";
+                        iter->left = new_node;
+                        return true;
+                    }
+            }
+            //數字與目前node相等
+            else
+            {
+                //std::cout << "Equal node\n";
+                delete new_node;
+                return false;
+            }
+        }
+    }
+
+    bool serach(T target)
+    {
+        TreeNode<T> *iter = this->root;
+        while(iter != nullptr)
+        {
+            //數字比目前node大
+            if(stoi(target) > stoi(iter->data))
+            {
+                if(iter -> right != nullptr)
+                    iter = iter->right;
+                else
+                    return false;
+            }
+            //數字比目前node小
+            else if(stoi(target) < stoi(iter->data))
+            {
+                if(iter -> left != nullptr)
+                    iter = iter->left;
+                else
+                    return false;
+            }
+            //數字與目前node相等
+            else
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void preorder()
+    {
+        //std::cout << "Preorder\n";
+
+        if(order_str.length() == 0)
+            order_str += this->root->data;
+        else
+            order_str += "," + this->root->data;
+
+        if(this->root->left != nullptr)
+            preorder(this->root->left);
+        if(this->root->right != nullptr)
+            preorder(this->root->right);
+
+        std::cout << order_str << std::endl;
+        order_str.clear();
+    }
+
+    void preorder(TreeNode<T> *cur_node)
+    {
+        if(order_str.length() == 0)
+            order_str += cur_node->data;
+        else
+            order_str += "," + cur_node->data;
+
+        if(cur_node->left != nullptr)
+            preorder(cur_node->left);
+        if(cur_node->right != nullptr)
+            preorder(cur_node->right);
+    }
+
+    void inorder()
+    {
+        //std::cout << "Inorder\n";
+        
+        if(this->root->left != nullptr)
+            inorder(this->root->left);
+
+        if(order_str.length() == 0)
+            order_str += this->root->data;
+        else
+            order_str += "," + this->root->data;
+
+        if(this->root->right != nullptr)
+            inorder(this->root->right);
+
+        std::cout << order_str << std::endl;
+        order_str.clear();
+    }
+
+    void inorder(TreeNode<T> *cur_node)
+    {
+        if(cur_node->left != nullptr)
+            inorder(cur_node->left);
+
+        if(order_str.length() == 0)
+            order_str += cur_node->data;
+        else
+            order_str += "," + cur_node->data;
+
+        if(cur_node->right != nullptr)
+            inorder(cur_node->right);
+    }
+
+    void postorder()
+    {
+         //std::cout << "Postorder\n";
+        
+        if(this->root->left != nullptr)
+            postorder(this->root->left);
+
+        if(this->root->right != nullptr)
+            postorder(this->root->right);
+
+        if(order_str.length() == 0)
+            order_str += this->root->data;
+        else
+            order_str += "," + this->root->data;
+
+        std::cout << order_str << std::endl;
+        order_str.clear();
+    }
+
+    void postorder(TreeNode<T> *cur_node)
+    {
+        if(cur_node->left != nullptr)
+            postorder(cur_node->left);
+        if(cur_node->right != nullptr)
+            postorder(cur_node->right);
+
+        if(order_str.length() == 0)
+            order_str += cur_node->data;
+        else
+            order_str += "," + cur_node->data;
+    }
+
+    void levelorder()
+    {
+        Queue<TreeNode<T>*> node;
+        node.enqueue(this->root);
+
+        while(!node.isEmpty())
+        {
+            TreeNode<T> *buf = node.front();
+            node.dequeue();
+
+            if(order_str.length() == 0)
+                order_str += buf->data;
+            else
+                order_str += "," + buf->data;
+
+            if(buf->left != nullptr)
+                node.enqueue(buf->left);
+            if(buf->right != nullptr)
+                node.enqueue(buf->right);
+        }
+
+        //std::cout << "Levelorder\n";
+        std::cout << order_str << std::endl;
+        order_str.clear();
+    }
+    
+    void deSerialize(std::string tree)
+    {
+      std::stringstream comma_split(tree);
+      std::string sub_str;
+      Queue<std::string> data_queue;
+      Queue<TreeNode<T>*> next_queue;
+
+      
+      while(std::getline(comma_split, sub_str, ','))
+      {
+        if(sub_str == "NULL")
+          data_queue.enqueue("NULL");
+        else
+          data_queue.enqueue(sub_str);
+      }
+
+      std::string buf;
+      bool set_root = true;
+      while(!data_queue.isEmpty())
+      {
+        TreeNode<T>* cur_node;
+
+        //第一次放樹根
+        if(set_root)
+        {
+          this->setRoot(data_queue.dequeue());
+          set_root = false;
+
+          cur_node = this->root;
+          //std::cout << "root_node:" << cur_node->data << std::endl;
+        }
+        //之後的node
+        else
+        {
+          cur_node = next_queue.dequeue();
+          //std::cout << "cur_node:" << cur_node->data << std::endl;
+        }
+
+        //左node可放
+        if(!data_queue.isEmpty() && (buf = data_queue.dequeue()) != "NULL")
+        {
+          cur_node->left = new TreeNode<T>(buf);
+          next_queue.enqueue(cur_node->left);
+          //std::cout << "left node place:" << cur_node->left->data << std::endl;
+        }
+        //右node可放
+        if(!data_queue.isEmpty() && (buf = data_queue.dequeue()) != "NULL")
+        {
+          cur_node->right = new TreeNode<T>(buf);
+          next_queue.enqueue(cur_node->right);
+          //std::cout << "right node place:" << cur_node->right->data << std::endl;
+        }
+      }
+    }
+
+
+    std::string serialize()
+    {
+      Queue<TreeNode<T>*> node;
+      node.enqueue(this->root);
+
+      while(!node.isEmpty())
+      {
+          TreeNode<T> *buf = node.dequeue();
+          if(buf == 0)
+          {
+            order_str += ",NULL";
+          }
+          else
+          {
+            if(order_str.length() == 0)
+              order_str += buf->data;
+            else
+              order_str += "," + buf->data;
+
+            node.enqueue(buf->left);
+
+            node.enqueue(buf->right);
+          }
+      }
+
+      std::string return_str = order_str;
+      order_str.clear();
+
+      //把多餘的,NULL刪掉
+      while(return_str.find_last_not_of("NULL") == return_str.length()-5)
+        return_str.resize(return_str.length()-5);
+      return return_str;
+    }
+
+    bool isNumber(const std::string &input)
+    {
+      for(int i = 0;i < input.length();i++)
+      {
+        if(((input[i] == '-' && i == 0 && input.length() != 1) || (input[i] == '.' && i != 0) || 
+        input[i] >= '0' && input[i] <= '9'))
+          continue;
+        else
+          return false;
+      }
+
+      return true;
+    }
+
+    std::string expression_infix()
+    {
+      //root為數字，且左或右為非空
+      if(isNumber(this->root->data) && (this->root->left != nullptr 
+      || this->root->right != nullptr))
+        return "ERROR";
+
+      //直到root為數字就結束
+      while(!isNumber(this->root->data))
+      {
+        TreeNode<T> *iter = find_calc();
+        if(iter == nullptr)
+          return "ERROR";
+        else
+        {
+          BigDecimal a(iter->left->data), b(iter->right->data);
+          //std::cout << "num_a:" << a.ch_int_arr << " " << a.ch_dec_arr << std::endl;
+          //std::cout << "a_positive" << a.positive << std::endl;
+          //std::cout << "num_b:" << b.ch_int_arr << " " << b.ch_dec_arr << std::endl;
+          //std::cout << "b_positive" << b.positive << std::endl;
+          BigDecimal *c = calculation(iter->data[0], &a, &b);
+          c->banker_rounding(c);
+          //std::cout << "num_c:" << c->ch_int_arr << " " << c->ch_dec_arr << std::endl;
+          //std::cout << "c_positive" << c->positive << std::endl;
+          iter->data = c->get_num();
+          //std::cout << "iter->data:" << iter->data << std::endl;
+
+
+          delete(iter->left);
+          delete(iter->right);
+          iter->left = 0;
+          iter->right = 0;
+        }
+
+        //std::cout << "inorder:";
+        //this->inorder();
+      }
+
+      return this->root->data;
+    }
+
+    BigDecimal* calculation(char ch, BigDecimal* a, BigDecimal* b)
+    {
+      switch(ch)
+      {
+        case '+':
+          return *a + b;
+        case '-':
+          return *a - b;
+        case '*':
+          return *a * b;
+        case '/':
+          return *a / b;
+        case '^':
+          return *a ^ b;
+        default:
+          return 0;
+      }
+    }
+
+    TreeNode<T>* find_calc()
+    {
+
+      //root為非數字，且左為數右為數
+      if(!isNumber(this->root->data) && this->root->left && this->root->right 
+      && isNumber(this->root->left->data) && isNumber(this->root->right->data))
+      {
+        //如果左的children與右的children都不存在（正常情形）
+        if(this->root->left->left == nullptr && this->root->left->right == nullptr && 
+        this->root->right->left == nullptr && this->root->right->right == nullptr)
+          return this->root;
+        else
+          return 0;
+      }
+      //root為非數，且左或右為非數（代表需要再往下找）
+      else if(!isNumber(this->root->data) && this->root->left && this->root->right 
+      && (!isNumber(this->root->left->data) || !isNumber(this->root->right->data)))
+      {
+        if(!isNumber(this->root->left->data))
+        {
+          return find_calc(this->root->left);
+        }
+        if(!isNumber(this->root->right->data))
+        {
+          return find_calc(this->root->right);
+        }
+      }
+      else
+        return 0;
+    }
+
+    TreeNode<T>* find_calc(TreeNode<T>* iter)
+    {
+      if(!isNumber(iter->data) && iter->left && iter->right 
+      && isNumber(iter->left->data) && isNumber(iter->right->data))
+      {
+        if(iter->left->left == nullptr && iter->left->right == nullptr && 
+        iter->right->left == nullptr && iter->right->right == nullptr)
+          return iter;
+        else
+          return 0;
+      }
+      else if(!isNumber(iter->data) && iter->left && iter->right 
+      && (!isNumber(iter->left->data) || !isNumber(iter->right->data)))
+      {
+        if(!isNumber(iter->left->data))
+          return find_calc(iter->left);
+        if(!isNumber(iter->right->data))
+          return find_calc(iter->right);
+      }
+      else
+        return 0;
+    }
+
+private:
+    std::string order_str;
+};
+
+#include <cstdio>
+
+int main()
+{
+  freopen("input.txt", "r", stdin);
+  freopen("output.txt", "w", stdout);
+  std::string line;
+  while(std::getline(std::cin, line))
+  {
+    BinarySearchTree<std::string> tree;
+    tree.deSerialize(line);
+    
+    //std::cout << "levelorder\n";
+    //tree.levelorder();
+    //std::cout << "inorder\n";
+    //tree.inorder();
+
+    std::cout << tree.expression_infix() << std::endl;
+    line.clear();
+    //std::cout << tree.serialize() << std::endl;
+  }
 }

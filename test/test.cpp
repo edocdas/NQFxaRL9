@@ -3,16 +3,28 @@
 
 int main()
 {
-    //int a = NULL;
-    std::string test = "NULL";
-    int a = 2, b = 0;
-    a ? a += 1 : b += 1;
-    std::cout << a << " " << b << std::endl;
-    b ? a += 1 : b += 1;
-    std::cout << a << " " << b << std::endl;
+    std::string children, data, path, type;
+    std::string tree;
 
+    std::getline(std::cin, tree);
 
-    /*char input2[10000] = "12345";
-    strcpy(input2+strlen(input2), "6");
-    std::cout << input2 << std::endl;*/
+    int type_index = tree.rfind("\"type\":"), path_index = tree.rfind("\"path\"");
+    type = tree.substr(type_index+8);
+    type = type.substr(0, type.length()-2);
+
+    path = tree.substr(path_index+8, type_index-3-(path_index+7));
+
+    if(tree.find("\"children\"") == 1)
+    {
+        children = tree.substr(12,path_index-1-12);
+    }
+    else if(tree.find("\"data\"") == 1)
+    {
+        data = tree.substr(9,path_index-2-9);
+    }
+
+    std::cout << "Children:" << children << std::endl;
+    std::cout << "Data:" << data << std::endl;
+    std::cout << "Path:" << path << std::endl;
+    std::cout << "Type:" << type << std::endl;
 }

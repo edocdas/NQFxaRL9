@@ -1,5 +1,5 @@
-#include <iostream>
-#include <sstream>
+#include <exception>
+#include<iostream>
 
 
 /**
@@ -219,16 +219,6 @@ class LinkedList {
     return head == nullptr ? true : false;
   }
 
-  int size()
-  {
-    int count = 0;
-    for(Node<T>*iter = head;iter;iter = iter->getNext())
-    {
-      count++;
-    }
-    return count;
-  }
-
   /**
    * Overload the operator << to print out all the data in the linked list from the head
    * There is a \n in the end of each print
@@ -415,35 +405,19 @@ public:
   {
     this->children = children;
   }
-
   T getData()
   {
     return data;
   }
 
-  void setData(T data)
+  void setWordEnd(bool state)
   {
-    this->data = data;
+    word_end = state;
   }
 
-  void setPath(std::string path)
+  bool getWordEnd()
   {
-    this->path = path;
-  }
-
-  void setType(std::string type)
-  {
-    this->type = type;
-  }
-
-  std::string getPath()
-  {
-    return path;
-  }
-
-  std::string getType()
-  {
-    return type;
+    return word_end;
   }
   
 
@@ -451,7 +425,7 @@ private:
   T data;
   GeneralTreeNode<T> *parent = nullptr; 
   LinkedList<GeneralTreeNode<T>*>* children = nullptr;
-  std::string path, type;
+  bool word_end = false;
 };
 
 template<class T>
@@ -513,26 +487,17 @@ class GeneralTree{
     2-1:先搜尋，看有沒有重複的字串
     2-2:若沒有，則放入剩餘的字串
     */
-    bool insert(T path, T data, T type)
+    bool insert(T data)
     {
-      LinkedList<std::string> path_substr;
-      std::string buf;
-      std::istringstream stream(path.substr(1));
-      while(std::getline(stream, buf, '/'))
-        path_substr.addToTail(buf);
-      
-      int path_link_size = path_substr.size();
-
       //這個樹是空的
       if(empty_list_node(this->root->getChildren()))
       {
         //std::cout << "This is a empty tree.\n";
         //創建一個新的linkedlist，放入資料後，再給root node
         GeneralTreeNode<T>* iter;
-        for(int i = 0;i < path_link_size;i++)
+        for(int i = 0;i < data.length();i++)
         {
-          GeneralTreeNode<T> *buf_node = new GeneralTreeNode<T>(path_substr.getHead()->getData());
-          path_substr.deleteData(buf_node->getData());
+          GeneralTreeNode<T> *buf_node = new GeneralTreeNode<T>(std::string(data, i, 1));
           //std::cout << "buf_node:" << buf_node->getData() << std::endl;
 
           //放root的child
@@ -550,12 +515,9 @@ class GeneralTree{
             
           iter = buf_node;
 
-          //最後一個node，設定資料與屬性
+          //最後一個node，設定word_end
           if(i+1 == data.length())
-          {
-            iter->setType(type);
-            iter->setData(data);
-          }
+            iter->setWordEnd(true);
         }
         return true;
       }
@@ -569,18 +531,13 @@ class GeneralTree{
         GeneralTreeNode<T>* target_node;
         while(true)
         {
-          std::string find_str = path_substr.getfront();
-          path_substr.deleteData(find_str);
-
           //在linkedlist中，找不到該字元
-          if(target_node->getPath() != find_str)
+          if((target_node = find_char(iter, data[index])) == 0)
           {
-            path_substr.addToHead(find_str);
             //std::cout << "can't find that character\n";
-            for(int i = index;i < path_link_size;i++)
+            for(int i = index;i < data.length();i++)
             {
-              GeneralTreeNode<T> *buf_node = new GeneralTreeNode<T>(path_substr.getHead()->getData());
-              path_substr.deleteData(buf_node->getData());
+              GeneralTreeNode<T> *buf_node = new GeneralTreeNode<T>(std::string(data, i, 1));
               //std::cout << "buf_node:" << buf_node->getData() << std::endl;
 
               //放root的child
@@ -601,20 +558,27 @@ class GeneralTree{
                 
               target_node = buf_node;
 
-              //最後一個node，設定資料與屬性
+              //最後一個node，設定word_end
               if(i+1 == data.length())
-              {
-                target_node->setType(type);
-                target_node->setData(data);
-              }
+                target_node->setWordEnd(true);
             }
             return true;
           }
           //在linkedlist中，找到該字元，且輸入資料尚未到底
-          if(target_node->getPath() == find_str && index + 1 != path_link_size)
+          if((target_node = find_char(iter, data[index])) && index + 1 != data.length())
           {
             iter = target_node->getChildren();
             index++;
+          }
+          else if((target_node = find_char(iter, data[index])) && index + 1 == data.length())
+          {
+            if(target_node->getWordEnd())
+              return false;
+            else
+             {
+              target_node->setWordEnd(true);
+              return true;
+             };
           }
           else
           {
@@ -624,7 +588,7 @@ class GeneralTree{
       }
     }
 
-    bool search(T path)
+    bool search(T data)
     {
       //這個樹是空的
       if(this->root->getChildren() == nullptr)
@@ -634,15 +598,6 @@ class GeneralTree{
       //已經放東西了
       else
       {
-        LinkedList<std::string> path_substr;
-        std::string buf;
-        std::istringstream stream(path.substr(1));
-        while(std::getline(stream, buf, '/'))
-          path_substr.addToTail(buf);
-      
-      int path_link_size = path_substr.size();
-
-
         LinkedList<GeneralTreeNode<T>*> *iter = this->root->getChildren();
         int index = 0;
         GeneralTreeNode<T>* target_node;
@@ -683,26 +638,18 @@ class GeneralTree{
       
       for(Node<GeneralTreeNode<T>*> *iter = list->getHead();iter;iter = iter->getNext())
       {
-        //他是一個檔案
-        if(iter->getData()->getType() == "file")
-        {
-          serial_str += "{\"data\":\"" + iter->getData()->getData() + "\",";
-        }
-        //他是一個目錄
-        else
-        {
-          serial_str += "{\"children\":[";
-          serialize_list(iter->getData()->getChildren());
-          serial_str += "],";
-        }
-        serial_str += "\"path\":\"" + iter->getData()->getPath() + "\",";
-        serial_str += "\"type\":\"" + iter->getData()->getType() + "\"}";
-        
+        serial_str += "{\"children\":[";
+        serialize_list(iter->getData()->getChildren());
+        serial_str += "],\"data\":\"" + iter->getData()->getData() + "\"";
+        if(iter->getData()->getWordEnd())
+          serial_str += ",\"end\":\"true\"";
+
+        serial_str += "}";
         if(iter->getNext() != nullptr)
           serial_str += ",";
       }
 
-      serial_str += "],\"path\":\"/\",\"type\":\"dir\"}}";
+      serial_str += "],\"data\":\"\"}}";
       
       //std::cout << "result:" << serial_str << std::endl;
       return serial_str;
@@ -717,22 +664,17 @@ class GeneralTree{
       }
       else
         //print_list_node(list);
+
       
       for(Node<GeneralTreeNode<T>*> *iter = list->getHead();iter;iter = iter->getNext())
       {
-        if(iter->getData()->getType() == "file")
-        {
-          serial_str += "{\"data\":\"" + iter->getData()->getData() + "\",";
-        }
-        else
-        {
-          serial_str += "{\"children\":[";
-          serialize_list(iter->getData()->getChildren());
-          serial_str += "],";
-        }
-        serial_str += "\"path\":\"" + iter->getData()->getPath() + "\",";
-        serial_str += "\"type\":\"" + iter->getData()->getType() + "\"}";
-        
+        serial_str += "{\"children\":[";
+        serialize_list(iter->getData()->getChildren());
+        serial_str += "],\"data\":\"" + iter->getData()->getData() + "\"";
+        if(iter->getData()->getWordEnd())
+          serial_str += ",\"end\":\"true\"";
+
+        serial_str += "}";
         if(iter->getNext() != nullptr)
           serial_str += ",";
       }
@@ -746,161 +688,41 @@ class GeneralTree{
     }
 
 
-    void deSerialize(std::string tree)
-    {
-      root->setPath("/");
-      root->setType("dir");
-
-      /*
-      把前後不需要輸入的拿掉
-      ex. {"root":{"children":[{"children":[{"data":"this is script","path":"script","type":"file"}],"path":"bin","type":"dir"}
-          ,{"children":[],"path":"tmp","type":"dir"}
-          ,{"children":[],"path":"usr","type":"dir"}],"path":"/","type":"dir"}}
-          
-          ->[{"children":[{"data":"this is script","path":"script","type":"file"}],"path":"bin","type":"dir"}
-            ,{"children":[],"path":"tmp","type":"dir"}
-            ,{"children":[],"path":"usr","type":"dir"}]
-      */
-      tree = tree.substr(20);
-      tree = tree.substr(0, tree.length()-26);
-
-      std::cout << "remove root:" << tree << std::endl;
-      //因為解析出來的是一個array，開始進入array函式處理
-      array_deser(tree, root);
-    }
-
-
-    /*
-    分解一個node
-    type & path 從後往前找，之後再直接用path_index得出children or data字串
-    (以避免他們的字串包含在判斷標準內)
-
-    ex1. {"children":[],"path":"tmp","type":"dir"}
-    ex2. {"data":"this is script","path":"script","type":"file"}
-    */
-    void node_deser(std::string node_str, LinkedList<GeneralTreeNode<T>*>*list)
-    {
-      std::string children, data, path, type;
-
-      int type_index = node_str.rfind("\"type\":"), path_index = node_str.rfind("\"path\"");
-      type = node_str.substr(type_index+8);
-      type = type.substr(0, type.length()-2);
-
-      path = node_str.substr(path_index+8, type_index-3-(path_index+7));
-
-      if(node_str.find("\"children\"") == 1)
-      {
-          children = node_str.substr(12,path_index-1-12);
-      }
-      else if(node_str.find("\"data\"") == 1)
-      {
-          data = node_str.substr(9,path_index-2-9);
-      }
-
-
-      //列印這個node(測試用途)
-      std::cout << "Children:" << children << std::endl;
-      std::cout << "Data:" << data << std::endl;
-      std::cout << "Path:" << path << std::endl;
-      std::cout << "Type:" << type << std::endl;
-
-      //創建一個新的node
-      GeneralTreeNode<T> *new_node = new GeneralTreeNode<T>;
-      new_node->setPath(path);
-      new_node->setType(type);
-      if(data != "")
-        new_node->setData(data);
-
-      list->addToTail(new_node);
-
-      //如果還有這個node的children
-      if(children != "")
-        array_deser(children, new_node);
-    }
-
-    /*
-    分解一個array
-    把這個array分解成各個node，並放在list中
-    再使用node的函式處理
-
-    symbol_end_place:找到第一個相符合符號的index
-
-    ex. [{"children":[{"data":"this is script","path":"script","type":"file"}],"path":"bin","type":"dir"}
-        ,{"children":[],"path":"tmp","type":"dir"}
-        ,{"children":[],"path":"usr","type":"dir"}]
-
-    ->  {"children":[{"data":"this is script","path":"script","type":"file"}],"path":"bin","type":"dir"}
-        {"children":[],"path":"tmp","type":"dir"}
-        {"children":[],"path":"usr","type":"dir"}
-    */
-    void array_deser(std::string children_str, GeneralTreeNode<T> *node)
-    {
-      children_str = children_str.substr(1, children_str.length()-1);
-      LinkedList<std::string> array_nodes;
-      //遇到array的結尾才會停止
-      while(children_str[0] != ']')
-      {
-        int end_index = symbol_end_place(children_str, '{', '}');
-        array_nodes.addToTail(children_str.substr(0, end_index+1));
-
-        //尚未到最後一個node，順便把逗號拿掉
-        if(children_str[end_index+1] == ',')
-          children_str.erase(0, end_index+2);
-        else
-          children_str.erase(0, end_index+1);
-      }
-
-      for(Node<std::string>*iter = array_nodes.getHead();iter;iter = iter->getNext())
-      {
-        std::cout << "Current list\n" << iter->getData() << std::endl;
-        node_deser(iter->getData(), node->getChildren());
-      }
-      
-      /*std::cout << "List data\n";
-      for(Node<std::string>*iter = array_nodes.getHead();iter;iter = iter->getNext())
-      {
-        std::cout << iter->getData() << std::endl;
-      }*/
-    }
-
-
-
-    int symbol_end_place(std::string str, char left_sym, char right_sym)
-    {
-      int equal = 0;
-      for(int i = 0;i < str.length();i++)
-      {
-        if(str[i] == left_sym)
-          equal++;
-        if(str[i] == right_sym)
-          equal--;
-        
-        if(equal == 0)
-          return i;
-      }
-
-      return -1;
-    }
-
   private:
     GeneralTreeNode<T>* root;
     std::string serial_str;
 };
 
 
-
+/*
+疑問
+1.我們把TreeNode繼承給GeneralTreeNode，但是TreeNode的函式的參數是TreeNode
+  是否都要改成GeneralTreeNode?
+2.T&D如果都用string，那會有差別嗎?
+*/
 #include<cstdio>
 
 int main() {
-  freopen("input.txt", "r", stdin);
-  freopen("output.txt", "w", stdout);
+  //freopen("input.txt", "r", stdin);
+  //freopen("output.txt", "w", stdout);
 
   GeneralTree<std::string> a;
-  std::string tree;
-  std::getline(std::cin, tree);
-  a.deSerialize(tree);
-  std::cout << a.serialize();
-  a.insert("/usr/bin/systemctl", "", "dir");
+  int insert_num = 0, search_num = 0;
+  std::cin >> insert_num >> search_num;
+  for(int i = 0;i < insert_num;i++)
+  {
+    std::string input;
+    std::cin >> input;
+    a.insert(input);
+  }
+  for(int i = 0;i < search_num;i++)
+  {
+    std::string input;
+    std::cin >> input;
+    std::cout << a.search(input) << std::endl;
+  }
+
+  std::cout << a.serialize() << std::endl;
 
   //測試用
   //a.levelorder();
