@@ -84,14 +84,6 @@ template<class T>
 class LinkedList {
   public:
 
-  template<typename D>
-  friend void print_list_node(LinkedList<D> *list);
-  template<typename D>
-  friend bool empty_list_node(LinkedList<D> *list);
-  template<typename D>
-  friend D find_char(LinkedList<D> *list, const char ch);
-  template<typename D>
-  friend void list_sort(LinkedList<D> *list);
   /**
    * Construct a new LinkedList object with no parameter
    */
@@ -180,20 +172,6 @@ class LinkedList {
     }
   }
 
-  /**
-   * Delete valid n nodes from the linked list with the given data from the head
-   * If there are no more data to be deleted, then just skip
-   * @param data: data to delete
-   * @param n: max number of nodes to delete
-   */
-  void deleteData(T data, int n)
-  {
-    for(int i = 0;i < n;i++)
-    {
-      deleteData(data);
-    }
-  }
-
   Node<T>* getHead()
   {
     return head;
@@ -229,32 +207,31 @@ class LinkedList {
     return count;
   }
 
-  /**
-   * Overload the operator << to print out all the data in the linked list from the head
-   * There is a \n in the end of each print
-   * 
-   * Output example: 
-   * If your linked list data is 5, 4, 3, 2, 1
-   * then you should print out "(5, 4, 3, 2, 1)" with the content in quotes but without the quotes
-   */
-  friend std::ostream &operator<<(std::ostream &out, LinkedList * n)
+  void print()
   {
-    Node<T> *iter = n->head;
-    int counter = 0;
-    out << "(";
-    while(iter != nullptr)
+    auto while_print_node = [=](Node<T> *iter)
     {
-      if(counter != 0)
-        out << ", ";
-      
-      out << iter->getData();
-      iter = iter->getNext();
+      while(true)
+      {
+        auto print_type = [](Node<T> *iter)
+        {
+            std::cout << iter->getData() << " ";
+        };
 
-      counter++;
-    }
-    out << ")\n";
 
-    return out;
+        print_type(iter);
+        if(iter != this->getTail())
+            iter = iter->getNext();
+        else
+            return;
+      }
+    };
+
+
+    Node<T> *iter = this->getHead();
+    std::cout << "Print list:";
+    while_print_node(iter);
+    std::cout << "\n";
   }
 
   private: 
@@ -262,69 +239,147 @@ class LinkedList {
     Node<T> *tail = nullptr;
 };
 
-//測試用，把這個list印出來
 template<class T>
-void print_list_node(LinkedList<T> *list)
+class TreeNodeLinkedList : public LinkedList<T>
 {
-  Node<T> *iter = list->head;
-  std::cout << "Print list:";
-  while(true)
+  public:
+
+  void print()
   {
-    std::cout << iter->getData()->getData() << " ";
-    if(iter != list->tail)
-      iter = iter->getNext();
-    else
-      break;
-  }
-  std::cout << "\n";
-}
-
-//檢查list是否為空
-template<class T>
-bool empty_list_node(LinkedList<T> *list)
-{
-  return list->head == nullptr;
-}
-
-//看這個list有沒有特定的字元（假設list的資料皆為一字元的string）
-template<class T>
-T find_char(LinkedList<T> *list, const char ch)
-{
-  if(empty_list_node(list))
-    return nullptr;
-
-  Node<T> *iter = list->head;
-  
-  while(true)
-  {
-    //std::cout << "find_char:" << iter->getData()->getData() << "\n";
-
-    if(iter->getData()->getData() == std::string(1, ch))
-      return iter->getData();
-    else if(iter != list->tail)
-      iter = iter->getNext();
-    else
-      return nullptr;
-  }
-}
-
-//排序這個list
-template<class T>
-void list_sort(LinkedList<T> *list)
-{
-  for(Node<T>*iter_a = list->head;iter_a;iter_a = iter_a->getNext())
-  {
-    for(Node<T>*iter_b = iter_a;iter_b;iter_b = iter_b->getNext())
+    auto while_print_node = [=](Node<T> *iter)
     {
-      if(iter_a->getData()->getData()[0] > iter_b->getData()->getData()[0])
+      while(true)
       {
-        T buf = iter_a->getData();
-        iter_a->setData(iter_b->getData());
-        iter_b->setData(buf);
+        auto print_type = [](Node<T> *iter)
+        {
+            std::cout << iter->getData()->getData() << " ";
+        };
+
+
+        print_type(iter);
+        if(iter != this->getTail())
+            iter = iter->getNext();
+        else
+            return;
       }
-    }
+    };
+
+
+    Node<T> *iter = this->getHead();
+    std::cout << "Print list:";
+    while_print_node(iter);
+    std::cout << "\n";
   }
-}
+
+  void print_path()
+  {
+    auto while_print_node = [=](Node<T> *iter)
+    {
+      while(true)
+      {
+        auto print_type = [](Node<T> *iter)
+        {
+            std::cout << iter->getData()->getPath() << " ";
+        };
+
+
+        print_type(iter);
+        if(iter != this->getTail())
+            iter = iter->getNext();
+        else
+            return;
+      }
+    };
+
+
+    Node<T> *iter = this->getHead();
+    std::cout << "Print list:";
+    while_print_node(iter);
+    std::cout << "\n";
+  }
+
+
+  void list_sort_data()
+  {
+    auto for_loop_selection_sort = [&]()
+    {
+      for(Node<T>*iter_a = this->getHead();iter_a;iter_a = iter_a->getNext())
+      {
+        for(Node<T>*iter_b = iter_a;iter_b;iter_b = iter_b->getNext())
+        {
+          auto sort_condiction = [&]() -> bool
+          {
+            return iter_a->getData()->getData() > iter_b->getData()->getData();
+          };
+
+          if(sort_condiction())
+          {
+            T buf = iter_a->getData();
+            iter_a->setData(iter_b->getData());
+            iter_b->setData(buf);
+          }
+        }
+      }
+    };
+
+
+    for_loop_selection_sort();
+  };
+
+  void list_sort_path()
+  {
+    auto for_loop_selection_sort = [&]()
+    {
+      for(Node<T>*iter_a = this->getHead();iter_a;iter_a = iter_a->getNext())
+      {
+        for(Node<T>*iter_b = iter_a;iter_b;iter_b = iter_b->getNext())
+        {
+          auto sort_condiction = [&]() -> bool
+          {
+            return iter_a->getData()->getPath() > iter_b->getData()->getPath();
+          };
+
+          if(sort_condiction())
+          {
+            T buf = iter_a->getData();
+            iter_a->setData(iter_b->getData());
+            iter_b->setData(buf);
+          }
+        }
+      }
+    };
+
+
+    for_loop_selection_sort();
+  };
+
+  T find_path_string(std::string target)
+  {
+    auto find_while_loop = [&](Node<T> *iter) -> T
+    {
+      while(true)
+      {
+        auto find_string_condiction = [&]() -> bool
+        {
+          return iter->getData()->getPath() == target;
+        };
+
+        if(find_string_condiction())
+          return iter->getData();
+        else if(iter != this->getTail())
+          iter = iter->getNext();
+        else
+          return nullptr;
+      }
+    };
+
+
+    if(this->isEmpty())
+      return nullptr;
+    Node<T> *iter = this->getHead();
+    return find_while_loop(iter);
+  }
+};
 
 template<class T>
 class Queue
@@ -388,70 +443,70 @@ class Queue
 
 template<class T>
 class GeneralTreeNode{
-public:
-  GeneralTreeNode()
-  {
-    children = new LinkedList<GeneralTreeNode<T>*>;
-  }
-  GeneralTreeNode(std::string data)
-  {
-    this->data = data;
-    children = new LinkedList<GeneralTreeNode<T>*>;
-  }
+  public:
+    GeneralTreeNode()
+    {
+      children = new TreeNodeLinkedList<GeneralTreeNode<T>*>;
+    }
+    GeneralTreeNode(std::string data)
+    {
+      this->data = data;
+      children = new TreeNodeLinkedList<GeneralTreeNode<T>*>;
+    }
 
-  GeneralTreeNode<T>* getParent()
-  {
-    return parent;
-  }
-  void setParent(GeneralTreeNode<T>* parent)
-  {
-    this->parent = parent;
-  }
-  LinkedList<GeneralTreeNode<T>*>* getChildren()
-  {
-    return this->children;
-  }
-  void setChildren(LinkedList<GeneralTreeNode<T>*>* children)
-  {
-    this->children = children;
-  }
+    GeneralTreeNode<T>* getParent()
+    {
+      return parent;
+    }
+    void setParent(GeneralTreeNode<T>* parent)
+    {
+      this->parent = parent;
+    }
+    TreeNodeLinkedList<GeneralTreeNode<T>*>* getChildren()
+    {
+      return this->children;
+    }
+    void setChildren(TreeNodeLinkedList<GeneralTreeNode<T>*>* children)
+    {
+      this->children = children;
+    }
 
-  T getData()
-  {
-    return data;
-  }
+    T getData()
+    {
+      return data;
+    }
 
-  void setData(T data)
-  {
-    this->data = data;
-  }
+    void setData(T data)
+    {
+      this->data = data;
+    }
 
-  void setPath(std::string path)
-  {
-    this->path = path;
-  }
+    void setPath(std::string path)
+    {
+      this->path = path;
+    }
 
-  void setType(std::string type)
-  {
-    this->type = type;
-  }
+    void setType(std::string type)
+    {
+      this->type = type;
+    }
 
-  std::string getPath()
-  {
-    return path;
-  }
+    std::string getPath()
+    {
+      return path;
+    }
 
-  std::string getType()
-  {
-    return type;
-  }
-  
+    std::string getType()
+    {
+      return type;
+    }
+    
 
-private:
-  T data;
-  GeneralTreeNode<T> *parent = nullptr; 
-  LinkedList<GeneralTreeNode<T>*>* children = nullptr;
-  std::string path, type;
+  private:
+    T data;
+    GeneralTreeNode<T> *parent = nullptr; 
+    TreeNodeLinkedList<GeneralTreeNode<T>*>* children = nullptr;
+    std::string path, type;
 };
 
 template<class T>
@@ -459,6 +514,7 @@ class GeneralTree{
   public:
     GeneralTree() {
        this -> root = new GeneralTreeNode<T>();
+       this -> root->setType("dir");
     }
     
     /*
@@ -515,73 +571,96 @@ class GeneralTree{
     */
     bool insert(T path, T data, T type)
     {
-      LinkedList<std::string> path_substr;
-      std::string buf;
-      std::istringstream stream(path.substr(1));
-      while(std::getline(stream, buf, '/'))
-        path_substr.addToTail(buf);
-      
-      int path_link_size = path_substr.size();
+      auto path_split = [=](auto path_substr_list)
+      {
+        std::string buf;
+        std::istringstream stream(path.substr(1));
+        while(std::getline(stream, buf, '/'))
+          path_substr_list.addToTail(buf);
+      };
 
+
+      TreeNodeLinkedList<std::string> path_substr_list;
+      path_split(path_substr_list);
+      int path_link_size = path_substr_list.size();
+
+      GeneralTreeNode<T>* parent_node = this->root;
       //這個樹是空的
-      if(empty_list_node(this->root->getChildren()))
+      if(this->root->getChildren()->isEmpty())
       {
         //std::cout << "This is a empty tree.\n";
         //創建一個新的linkedlist，放入資料後，再給root node
-        GeneralTreeNode<T>* iter;
         for(int i = 0;i < path_link_size;i++)
         {
-          GeneralTreeNode<T> *buf_node = new GeneralTreeNode<T>(path_substr.getHead()->getData());
-          path_substr.deleteData(buf_node->getData());
-          //std::cout << "buf_node:" << buf_node->getData() << std::endl;
-
-          //放root的child
-          if(i == 0)
+          auto get_node_in_pathlist = [&]() -> GeneralTreeNode<T> *
           {
-            this->root->getChildren()->addToTail(buf_node);
-            //print_list_node(this->root->getChildren());
-          }
-          //放其他node的child
-          else
-          {
-            iter->getChildren()->addToTail(buf_node);
-            //print_list_node(iter->getChildren());
-          }
+            GeneralTreeNode<T> *buf_node = new GeneralTreeNode<T>();
+            buf_node->setPath(path_substr_list.getHead()->getData());
+            path_substr_list.deleteData(buf_node->getPath());
             
-          iter = buf_node;
+            return buf_node;
+          };
 
-          //最後一個node，設定資料與屬性
-          if(i+1 == data.length())
+          auto set_node_type = [&](GeneralTreeNode<T> *node)
           {
-            iter->setType(type);
-            iter->setData(data);
-          }
+            if(i+1 == path_link_size)
+              node->setType(type);
+            else
+              node->setType("dir");
+          };
+
+          auto set_node_data = [&](GeneralTreeNode<T> *node)
+          {
+            if(i+1 == path_link_size)
+            {
+              node->setData(data);
+            }
+          };
+
+          auto set_node_parent = [&](GeneralTreeNode<T> *node)
+          {
+            node->setParent(parent_node);
+          };
+
+
+          GeneralTreeNode<T> *new_node = get_node_in_pathlist();
+          parent_node->getChildren()->addToTail(new_node);
+          
+          set_node_parent(new_node);
+          set_node_type(new_node);
+          set_node_data(new_node);
+          parent_node = new_node;
         }
         return true;
       }
       //已經放東西了
       else
       {
-        LinkedList<GeneralTreeNode<T>*> *iter = this->root->getChildren();
+        TreeNodeLinkedList<GeneralTreeNode<T>*> *iter_list = this->root->getChildren();
 
         int index = 0;
         bool first_put = true;
-        GeneralTreeNode<T>* target_node;
+        GeneralTreeNode<T>* target_node = this->root;
         while(true)
         {
-          std::string find_str = path_substr.getfront();
-          path_substr.deleteData(find_str);
+          std::string cur_str = path_substr_list.getfront();
+          path_substr_list.deleteData(cur_str);
 
           //在linkedlist中，找不到該字元
-          if(target_node->getPath() != find_str)
+          if(iter_list->find_path_string(cur_str) == nullptr)
           {
-            path_substr.addToHead(find_str);
+            path_substr_list.addToHead(cur_str);
             //std::cout << "can't find that character\n";
+
             for(int i = index;i < path_link_size;i++)
             {
-              GeneralTreeNode<T> *buf_node = new GeneralTreeNode<T>(path_substr.getHead()->getData());
-              path_substr.deleteData(buf_node->getData());
+              GeneralTreeNode<T> *buf_node = new GeneralTreeNode<T>();
+              buf_node->setPath(path_substr_list.getfront());
+              path_substr_list.deleteData(path_substr_list.getfront());
               //std::cout << "buf_node:" << buf_node->getData() << std::endl;
+
+              if(i+1 != path_link_size)
+                buf_node->setType("dir");
 
               //放root的child
               if(first_put)
@@ -598,11 +677,14 @@ class GeneralTree{
                 target_node->getChildren()->addToTail(buf_node);
                 //print_list_node(target_node->getChildren());
               }
-                
+              
+              //設置parent
+              buf_node->setParent(target_node);
+
               target_node = buf_node;
 
               //最後一個node，設定資料與屬性
-              if(i+1 == data.length())
+              if(i+1 == path_link_size)
               {
                 target_node->setType(type);
                 target_node->setData(data);
@@ -611,9 +693,10 @@ class GeneralTree{
             return true;
           }
           //在linkedlist中，找到該字元，且輸入資料尚未到底
-          if(target_node->getPath() == find_str && index + 1 != path_link_size)
+          if(iter_list->find_path_string(cur_str) != nullptr && index + 1 != path_link_size)
           {
-            iter = target_node->getChildren();
+            target_node = iter_list->find_path_string(cur_str);
+            iter_list = target_node->getChildren();
             index++;
           }
           else
@@ -640,7 +723,7 @@ class GeneralTree{
         while(std::getline(stream, buf, '/'))
           path_substr.addToTail(buf);
       
-      int path_link_size = path_substr.size();
+        int path_link_size = path_substr.size();
 
 
         LinkedList<GeneralTreeNode<T>*> *iter = this->root->getChildren();
@@ -649,7 +732,12 @@ class GeneralTree{
 
         while(true)
         {
-          target_node = find_char(iter, data[index]);
+          std::string target_str = path_substr.getfront();
+          path_substr.deleteData(target_str);
+
+          target_node = find_str(iter, target_str);
+          std::cout << "target_str:" << target_str << std::endl;
+          std::cout << "target_node:" << target_node << std::endl;
 
           //在linkedlist中，找不到該字元
           if(target_node == 0)
@@ -657,17 +745,65 @@ class GeneralTree{
             return 0;
           }
           //在linkedlist中，找到該字元，且輸入資料尚未到底
-          else if(target_node && index + 1 != data.length())
+          else if(target_node && index + 1 != path_link_size)
           {
             iter = target_node->getChildren();
             index++;
           }
           else
           {
-            if(target_node->getWordEnd())
-              return 1;
-            else
-              return 0;
+            return 1;
+          }
+        }
+      }
+    }
+
+    GeneralTreeNode<T>* search_get_path(T path)
+    {
+      //這個樹是空的
+      if(this->root->getChildren() == nullptr)
+      {
+        return 0;
+      }
+      //已經放東西了
+      else
+      {
+        LinkedList<std::string> path_substr;
+        std::string buf;
+        std::istringstream stream(path.substr(1));
+        while(std::getline(stream, buf, '/'))
+          path_substr.addToTail(buf);
+      
+        int path_link_size = path_substr.size();
+
+
+        LinkedList<GeneralTreeNode<T>*> *iter = this->root->getChildren();
+        int index = 0;
+        GeneralTreeNode<T>* target_node;
+
+        while(true)
+        {
+          std::string target_str = path_substr.getfront();
+          path_substr.deleteData(target_str);
+
+          target_node = find_str(iter, target_str);
+          std::cout << "target_str:" << target_str << std::endl;
+          std::cout << "target_node:" << target_node << std::endl;
+
+          //在linkedlist中，找不到該字元
+          if(target_node == 0)
+          {
+            return 0;
+          }
+          //在linkedlist中，找到該字元，且輸入資料尚未到底
+          else if(target_node && index + 1 != path_link_size)
+          {
+            iter = target_node->getChildren();
+            index++;
+          }
+          else
+          {
+            return target_node;
           }
         }
       }
@@ -887,23 +1023,112 @@ class GeneralTree{
     std::string serial_str;
 };
 
+class file_system
+{
+  public:
+  static void mkdir(std::string path, GeneralTree<std::string> *tree)
+  {
+    if(!tree->search(path))
+    {
+      tree->insert(path, "", "dir");
+    }
+  }
 
+  static void touch(std::string path, std::string data, GeneralTree<std::string> *tree)
+  {
+    if(!tree->search(path))
+    {
+      tree->insert(path, data, "file");
+    }
+  }
+
+  static void mv(std::string old_path, std::string new_path, GeneralTree<std::string> *tree)
+  {
+    if(tree->search(old_path))
+    {
+      GeneralTreeNode<std::string>* old_children = tree->search_get_path(old_path);
+      GeneralTreeNode<std::string>* new_children = tree->search_get_path(new_path);
+
+      delete(new_children->getChildren());
+      new_children->setChildren(old_children->getChildren());
+      old_children->setChildren(0);
+    }
+  }
+
+  static void rm(std::string path, GeneralTree<std::string> *tree)
+  {
+    if(tree->search(path))
+    {
+      GeneralTreeNode<std::string>* del_node = tree->search_get_path(path);
+      GeneralTreeNode<std::string>* del_parent_node = del_node->getParent();
+
+      del_parent_node->getChildren()->deleteData(del_node);
+      delete del_node;
+    }
+  }
+
+  static void cp(std::string old_path, std::string new_path, GeneralTree<std::string> *tree)
+  {
+    if(tree->search(old_path))
+    {
+      GeneralTreeNode<std::string>* old_children = tree->search_get_path(old_path);
+      GeneralTreeNode<std::string>* new_children = tree->search_get_path(new_path);
+
+      GeneralTreeNode<std::string>* buf_node = new GeneralTreeNode<std::string>();
+      buf_node->setData(old_children->getData());
+      buf_node->setPath(old_children->getPath());
+      buf_node->setType(old_children->getType());
+      buf_node->setParent(new_children);
+
+      new_children->getChildren()->addToTail(buf_node);
+      list_sort(new_children->getChildren());
+      cp_node_iter(old_children->getChildren(), buf_node);
+
+    }
+  }
+
+  void static cp_node_iter(LinkedList<GeneralTreeNode<std::string>*>*old_list, GeneralTreeNode<std::string>*node)
+  {
+    for(Node<GeneralTreeNode<std::string>*>*iter = old_list->getHead();iter;iter = iter->getNext())
+    {
+      GeneralTreeNode<std::string>* buf_node = new GeneralTreeNode<std::string>();
+      buf_node->setData(iter->getData()->getData());
+      buf_node->setPath(iter->getData()->getPath());
+      buf_node->setType(iter->getData()->getType());
+      buf_node->setParent(node);
+
+      node->getChildren()->addToTail(buf_node);
+      list_sort(node->getChildren());
+      cp_node_iter(iter->getData()->getChildren(), buf_node);
+    }
+  }
+};
 
 #include<cstdio>
 
 int main() {
-  freopen("input.txt", "r", stdin);
-  freopen("output.txt", "w", stdout);
+  //freopen("input.txt", "r", stdin);
+  //freopen("output.txt", "w", stdout);
 
-  GeneralTree<std::string> a;
-  std::string tree;
-  std::getline(std::cin, tree);
-  a.deSerialize(tree);
-  std::cout << a.serialize();
-  a.insert("/usr/bin/systemctl", "", "dir");
+  file_system item;
+  GeneralTree<std::string> tree;
+  std::string serial_tree, operation;
+  std::getline(std::cin, serial_tree);
+  tree.deSerialize(serial_tree);
+  
+  while(std::cin >> operation)
+  {
+    if(operation == "mv")
+    {
+      std::string old_path, new_path;
+      std::cin >> old_path >> new_path;
+      //item.mv(old_path, new_path, tree);
+    }
+  }
 
-  //測試用
-  //a.levelorder();
+
+
+  //std::cout << a.serialize() << std::endl;
   return 0;
 }
 

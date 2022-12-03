@@ -1,160 +1,16 @@
-remove root:[{"children":[{"data":"data of CP","path":"cp","type":"file"},{"data":"password is not here","path":"pwd","type":"file"}],"path":"bin","type":"dir"},{"children":[],"path":"dev","type":"dir"},{"children":[{"data":"This is not a password either.","path":"passwd","type":"file"}],"path":"etc","type":"dir"},{"children":[{"children":[{"children":[],"path":"bar","type":"dir"},{"children":[],"path":"foo","type":"dir"}],"path":"mthomas","type":"dir"},{"children":[{"data":"barbar barbar batbat","path":"bar","type":"file"},{"data":"foofoo","path":"foo","type":"file"}],"path":"mthomass","type":"dir"},{"children":[{"children":[{"data":"","path":"home","type":"file"}],"path":"home","type":"dir"}],"path":"stuff","type":"dir"}],"path":"home","type":"dir"},{"children":[{"children":[],"path":"environment.d","type":"dir"},{"children":[],"path":"jvm","type":"dir"},{"children":[],"path":"kernel","type":"dir"},{"children":[],"path":"openssh","type":"dir"},{"children":[],"path":"python3.9","type":"dir"},{"children":[],"path":"x86_64-linux-gnu","type":"dir"}],"path":"lib","type":"dir"},{"children":[],"path":"mnt","type":"dir"},{"children":[],"path":"proc","type":"dir"},{"children":[],"path":"root","type":"dir"},{"children":[],"path":"tmp","type":"dir"},{"children":[{"children":[],"path":"bin","type":"dir"},{"children":[],"path":"src","type":"dir"}],"path":"usr","type":"dir"}]
+remove root:[{"children":[{"data":"this is script","path":"script","type":"file"}],"path":"bin","type":"dir"},{"children":[],"path":"tmp","type":"dir"},{"children":[],"path":"usr","type":"dir"}]
 Current list
-{"children":[{"data":"data of CP","path":"cp","type":"file"},{"data":"password is not here","path":"pwd","type":"file"}],"path":"bin","type":"dir"}
-Children:[{"data":"data of CP","path":"cp","type":"file"},{"data":"password is not here","path":"pwd","type":"file"}]
+{"children":[{"data":"this is script","path":"script","type":"file"}],"path":"bin","type":"dir"}
+Children:[{"data":"this is script","path":"script","type":"file"}]
 Data:
 Path:bin
 Type:dir
 Current list
-{"data":"data of CP","path":"cp","type":"file"}
+{"data":"this is script","path":"script","type":"file"}
 Children:
-Data:data of CP
-Path:cp
+Data:this is script
+Path:script
 Type:file
-Current list
-{"data":"password is not here","path":"pwd","type":"file"}
-Children:
-Data:password is not here
-Path:pwd
-Type:file
-Current list
-{"children":[],"path":"dev","type":"dir"}
-Children:[]
-Data:
-Path:dev
-Type:dir
-Current list
-{"children":[{"data":"This is not a password either.","path":"passwd","type":"file"}],"path":"etc","type":"dir"}
-Children:[{"data":"This is not a password either.","path":"passwd","type":"file"}]
-Data:
-Path:etc
-Type:dir
-Current list
-{"data":"This is not a password either.","path":"passwd","type":"file"}
-Children:
-Data:This is not a password either.
-Path:passwd
-Type:file
-Current list
-{"children":[{"children":[{"children":[],"path":"bar","type":"dir"},{"children":[],"path":"foo","type":"dir"}],"path":"mthomas","type":"dir"},{"children":[{"data":"barbar barbar batbat","path":"bar","type":"file"},{"data":"foofoo","path":"foo","type":"file"}],"path":"mthomass","type":"dir"},{"children":[{"children":[{"data":"","path":"home","type":"file"}],"path":"home","type":"dir"}],"path":"stuff","type":"dir"}],"path":"home","type":"dir"}
-Children:[{"children":[{"children":[],"path":"bar","type":"dir"},{"children":[],"path":"foo","type":"dir"}],"path":"mthomas","type":"dir"},{"children":[{"data":"barbar barbar batbat","path":"bar","type":"file"},{"data":"foofoo","path":"foo","type":"file"}],"path":"mthomass","type":"dir"},{"children":[{"children":[{"data":"","path":"home","type":"file"}],"path":"home","type":"dir"}],"path":"stuff","type":"dir"}]
-Data:
-Path:home
-Type:dir
-Current list
-{"children":[{"children":[],"path":"bar","type":"dir"},{"children":[],"path":"foo","type":"dir"}],"path":"mthomas","type":"dir"}
-Children:[{"children":[],"path":"bar","type":"dir"},{"children":[],"path":"foo","type":"dir"}]
-Data:
-Path:mthomas
-Type:dir
-Current list
-{"children":[],"path":"bar","type":"dir"}
-Children:[]
-Data:
-Path:bar
-Type:dir
-Current list
-{"children":[],"path":"foo","type":"dir"}
-Children:[]
-Data:
-Path:foo
-Type:dir
-Current list
-{"children":[{"data":"barbar barbar batbat","path":"bar","type":"file"},{"data":"foofoo","path":"foo","type":"file"}],"path":"mthomass","type":"dir"}
-Children:[{"data":"barbar barbar batbat","path":"bar","type":"file"},{"data":"foofoo","path":"foo","type":"file"}]
-Data:
-Path:mthomass
-Type:dir
-Current list
-{"data":"barbar barbar batbat","path":"bar","type":"file"}
-Children:
-Data:barbar barbar batbat
-Path:bar
-Type:file
-Current list
-{"data":"foofoo","path":"foo","type":"file"}
-Children:
-Data:foofoo
-Path:foo
-Type:file
-Current list
-{"children":[{"children":[{"data":"","path":"home","type":"file"}],"path":"home","type":"dir"}],"path":"stuff","type":"dir"}
-Children:[{"children":[{"data":"","path":"home","type":"file"}],"path":"home","type":"dir"}]
-Data:
-Path:stuff
-Type:dir
-Current list
-{"children":[{"data":"","path":"home","type":"file"}],"path":"home","type":"dir"}
-Children:[{"data":"","path":"home","type":"file"}]
-Data:
-Path:home
-Type:dir
-Current list
-{"data":"","path":"home","type":"file"}
-Children:
-Data:
-Path:home
-Type:file
-Current list
-{"children":[{"children":[],"path":"environment.d","type":"dir"},{"children":[],"path":"jvm","type":"dir"},{"children":[],"path":"kernel","type":"dir"},{"children":[],"path":"openssh","type":"dir"},{"children":[],"path":"python3.9","type":"dir"},{"children":[],"path":"x86_64-linux-gnu","type":"dir"}],"path":"lib","type":"dir"}
-Children:[{"children":[],"path":"environment.d","type":"dir"},{"children":[],"path":"jvm","type":"dir"},{"children":[],"path":"kernel","type":"dir"},{"children":[],"path":"openssh","type":"dir"},{"children":[],"path":"python3.9","type":"dir"},{"children":[],"path":"x86_64-linux-gnu","type":"dir"}]
-Data:
-Path:lib
-Type:dir
-Current list
-{"children":[],"path":"environment.d","type":"dir"}
-Children:[]
-Data:
-Path:environment.d
-Type:dir
-Current list
-{"children":[],"path":"jvm","type":"dir"}
-Children:[]
-Data:
-Path:jvm
-Type:dir
-Current list
-{"children":[],"path":"kernel","type":"dir"}
-Children:[]
-Data:
-Path:kernel
-Type:dir
-Current list
-{"children":[],"path":"openssh","type":"dir"}
-Children:[]
-Data:
-Path:openssh
-Type:dir
-Current list
-{"children":[],"path":"python3.9","type":"dir"}
-Children:[]
-Data:
-Path:python3.9
-Type:dir
-Current list
-{"children":[],"path":"x86_64-linux-gnu","type":"dir"}
-Children:[]
-Data:
-Path:x86_64-linux-gnu
-Type:dir
-Current list
-{"children":[],"path":"mnt","type":"dir"}
-Children:[]
-Data:
-Path:mnt
-Type:dir
-Current list
-{"children":[],"path":"proc","type":"dir"}
-Children:[]
-Data:
-Path:proc
-Type:dir
-Current list
-{"children":[],"path":"root","type":"dir"}
-Children:[]
-Data:
-Path:root
-Type:dir
 Current list
 {"children":[],"path":"tmp","type":"dir"}
 Children:[]
@@ -162,21 +18,9 @@ Data:
 Path:tmp
 Type:dir
 Current list
-{"children":[{"children":[],"path":"bin","type":"dir"},{"children":[],"path":"src","type":"dir"}],"path":"usr","type":"dir"}
-Children:[{"children":[],"path":"bin","type":"dir"},{"children":[],"path":"src","type":"dir"}]
+{"children":[],"path":"usr","type":"dir"}
+Children:[]
 Data:
 Path:usr
 Type:dir
-Current list
-{"children":[],"path":"bin","type":"dir"}
-Children:[]
-Data:
-Path:bin
-Type:dir
-Current list
-{"children":[],"path":"src","type":"dir"}
-Children:[]
-Data:
-Path:src
-Type:dir
-{"root":{"children":[{"children":[{"data":"data of CP","path":"cp","type":"file"},{"data":"password is not here","path":"pwd","type":"file"}],"path":"bin","type":"dir"},{"children":[],"path":"dev","type":"dir"},{"children":[{"data":"This is not a password either.","path":"passwd","type":"file"}],"path":"etc","type":"dir"},{"children":[{"children":[{"children":[],"path":"bar","type":"dir"},{"children":[],"path":"foo","type":"dir"}],"path":"mthomas","type":"dir"},{"children":[{"data":"barbar barbar batbat","path":"bar","type":"file"},{"data":"foofoo","path":"foo","type":"file"}],"path":"mthomass","type":"dir"},{"children":[{"children":[{"data":"","path":"home","type":"file"}],"path":"home","type":"dir"}],"path":"stuff","type":"dir"}],"path":"home","type":"dir"},{"children":[{"children":[],"path":"environment.d","type":"dir"},{"children":[],"path":"jvm","type":"dir"},{"children":[],"path":"kernel","type":"dir"},{"children":[],"path":"openssh","type":"dir"},{"children":[],"path":"python3.9","type":"dir"},{"children":[],"path":"x86_64-linux-gnu","type":"dir"}],"path":"lib","type":"dir"},{"children":[],"path":"mnt","type":"dir"},{"children":[],"path":"proc","type":"dir"},{"children":[],"path":"root","type":"dir"},{"children":[],"path":"tmp","type":"dir"},{"children":[{"children":[],"path":"bin","type":"dir"},{"children":[],"path":"src","type":"dir"}],"path":"usr","type":"dir"}],"path":"/","type":"dir"}}
+{"root":{"children":[{"children":[{"data":"this is script","path":"script","type":"file"}],"path":"bin","type":"dir"},{"children":[],"path":"tmp","type":"dir"},{"children":[],"path":"usr","type":"dir"},{"children":[{"children":[{"children":[],"path":"","type":""}],"path":"","type":""}],"path":"","type":""}],"path":"/","type":"dir"}}
