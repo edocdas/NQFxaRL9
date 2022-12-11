@@ -1,5 +1,6 @@
 #include<iostream>
 #include<sstream>
+#include<climits>
 
 /**
  * A Node class of Doublely Linked List class
@@ -300,7 +301,6 @@ class TreeNode {
     T data;
     TreeNode<T> *left = nullptr;
     TreeNode<T> *right = nullptr;
-    TreeNode<T> *parent = nullptr;
 };
 
 /**
@@ -351,6 +351,7 @@ class binarySearchTree {
      * @param target target to find
      * @return true if found, false if not found
      */
+    virtual bool serach(T target) = 0;
 
     /**
      * Deserialize the string to a tree with levelorder traversal
@@ -364,7 +365,7 @@ class binarySearchTree {
      */
     virtual std::string serialize() = 0;
   protected:
-    TreeNode<T> *root = nullptr;
+    TreeNode<T> *root;
 };
 
 template<class T>
@@ -376,224 +377,94 @@ class BinarySearchTree : public binarySearchTree<T> {
         //std::cout << "root:" << this->root->data << std::endl;
     }
 
-    int height(TreeNode<T>*node)
-    {
-      auto max = [](int a, int b)
-      {
-        return a > b ? a : b;
-      };
-
-      if(node == nullptr)
-        return -1;
-      else
-        return max(height(node->left),height(node->right)) + 1;
-    }
-
     bool insert(T data)
     {
-      auto compare_larger = [](T compare_1, T compare_2) -> bool
-      {
-        if(isdigit(compare_1[0]))
-          return stoi(compare_1) > stoi(compare_2);
-        else
-          return compare_1 > compare_2;
-      };
-
-      auto compare_smaller = [](T compare_1, T compare_2) -> bool
-      {
-        if(isdigit(compare_1[0]))
-          return stoi(compare_1) < stoi(compare_2);
-        else
-          return compare_1 < compare_2;
-      };
-
-      //如果沒加過，就把資料放在root裡
-      if(this->root == nullptr)
-      {
-        setRoot(data);
-        return true;
-      }
-
-      TreeNode<T> *iter = this->root;
-      while(iter != nullptr)
-      {
-        //數字比目前node大
-        if(compare_larger(data, iter->data))
+        TreeNode<T> *iter = this->root, *new_node = new TreeNode<T>(data);
+        while(iter != nullptr)
         {
-          if(iter -> right != nullptr)
-            iter = iter->right;
-          else
-          {
-            //std::cout << "Put right node\n";
-            iter->right = new TreeNode<T>(data);
-            iter->right->parent = iter;
-            avl_rotate(iter->right);
-            return true;
-          }
+            //數字比目前node大
+            if(stoi(data) > stoi(iter->data))
+            {
+                //std::cout << "Bigger than node\n";
+
+                if(iter -> right != nullptr)
+                    iter = iter->right;
+                else
+                    {
+                        //std::cout << "Put right node\n";
+                        iter->right = new_node;
+                        return true;
+                    }
+            }
+            //數字比目前node小
+            else if(stoi(data) < stoi(iter->data))
+            {
+                //std::cout << "Smaller than node\n";
+
+                if(iter -> left != nullptr)
+                    iter = iter->left;
+                else
+                    {
+                        //std::cout << "Put left node\n";
+                        iter->left = new_node;
+                        return true;
+                    }
+            }
+            //數字與目前node相等
+            else
+            {
+                //std::cout << "Equal node\n";
+                delete new_node;
+                return false;
+            }
         }
-        //數字比目前node小
-        else if(compare_smaller(data, iter->data))
-        {
-          if(iter -> left != nullptr)
-              iter = iter->left;
-          else
-          {
-              //std::cout << "Put left node\n";
-              iter->left = new TreeNode<T>(data);
-              iter->left->parent = iter;
-              avl_rotate(iter->left);
-              return true;
-          }
-        }
-        //數字與目前node相等
-        else
-        {  
-          return false;
-        }
-      }
     }
 
-    TreeNode<T>* search(T target)
+    bool serach(T target)
     {
-      auto compare_larger = [](T compare_1, T compare_2) -> bool
-      {
-        if(isdigit(compare_1[0]))
-          return stoi(compare_1) > stoi(compare_2);
-        else
-          return compare_1 > compare_2;
-      };
-
-      auto compare_smaller = [](T compare_1, T compare_2) -> bool
-      {
-        if(isdigit(compare_1[0]))
-          return stoi(compare_1) < stoi(compare_2);
-        else
-          return compare_1 < compare_2;
-      };
-
-      TreeNode<T> *iter = this->root;
-      while(iter != nullptr)
-      {
-        //比較字串比目前node大
-        if(compare_larger(target, iter->data))
+        TreeNode<T> *iter = this->root;
+        while(iter != nullptr)
         {
-          iter = iter->right;
+            //數字比目前node大
+            if(stoi(target) > stoi(iter->data))
+            {
+                if(iter -> right != nullptr)
+                    iter = iter->right;
+                else
+                    return false;
+            }
+            //數字比目前node小
+            else if(stoi(target) < stoi(iter->data))
+            {
+                if(iter -> left != nullptr)
+                    iter = iter->left;
+                else
+                    return false;
+            }
+            //數字與目前node相等
+            else
+            {
+                return true;
+            }
         }
-        //比較字串比目前node小
-        else if(compare_smaller(target, iter->data))
-        {
-          iter = iter->left;
-        }
-        //比較字串與目前node相等
-        else
-        {
-            return iter;
-        }
-      }
 
-      return nullptr;
+        return false;
     }
 
-    TreeNode<T>* Max(TreeNode<T> *iter)
-    {
-      auto compare_larger = [](T compare_1, T compare_2) -> bool
-      {
-        if(isdigit(compare_1[0]))
-          return stoi(compare_1) > stoi(compare_2);
-        else
-          return compare_1 > compare_2;
-      };
-
-      while(iter->right != nullptr)
-      {
-        if(compare_larger(iter->right->data, iter->data))
-        {
-          iter = iter->right;
-        }
-      }
-
-      return iter;
-    }
-
-    void Delete(T target)
-    {
-      TreeNode<T>* del_node;
-      if((del_node = search(target)) != nullptr)
-      {
-        auto remove_parent_bind = [=](TreeNode<T>*del_node)
-        {
-          std::cout << del_node->parent->data << std::endl;
-          std::cout << "delete ser:" << this->serialize() << std::endl;
-          if(del_node->parent->left == del_node)
-          {
-            std::cout << "left parent unbind" << std::endl;
-            del_node->parent->left = 0;
-          }
-          else
-          {
-            std::cout << "right parent unbind" << std::endl;
-            del_node->parent->right = 0;
-          }
-          std::cout << "delete ser:" << this->serialize() << std::endl;
-        };
-
-        auto remove_and_replace = [](TreeNode<T>*del_node, TreeNode<T>*replace_node)
-        {
-          if(del_node->parent->left == del_node)
-          {
-            del_node->parent->left = replace_node;
-            replace_node->parent = del_node->parent;
-          }
-          else
-          {
-            del_node->parent->right = replace_node;
-            replace_node->parent = del_node->parent;
-          }
-        };
-
-        //如果我們刪除的node左右皆沒有child
-        if(del_node->left == nullptr && del_node->right == nullptr)
-        {
-          TreeNode<T>* buf = del_node->parent;
-          remove_parent_bind(del_node);
-          delete del_node;
-          avl_rotate(buf);
-        }
-        //兩個都有資料
-        else if(del_node->left != nullptr && del_node->right != nullptr)
-        {
-          TreeNode<T>* max_node = Max(del_node->left);
-          T buf_data = max_node->data;
-          //std::cout << "buf_data:" << buf_data << std::endl;
-          Delete(buf_data);
-          del_node->data = buf_data;
-          std::cout << "delete ser:" << this->serialize() << std::endl;
-        }
-        //其中一個有資料
-        else
-        {
-          if(del_node->left != nullptr)
-          {
-            TreeNode<T>* buf = del_node->parent;
-            remove_and_replace(del_node, del_node->left);
-            delete(del_node);
-            avl_rotate(buf);
-          }
-          else
-          {
-            TreeNode<T>* buf = del_node->parent;
-            remove_and_replace(del_node, del_node->right);
-            delete(del_node);
-            avl_rotate(buf);
-          }
-        }
-      }
-    }
-    
     void preorder()
     {
         //std::cout << "Preorder\n";
-        preorder(this->root);
+
+        if(order_str.length() == 0)
+            order_str += this->root->data;
+        else
+            order_str += "," + this->root->data;
+
+        if(this->root->left != nullptr)
+            preorder(this->root->left);
+        if(this->root->right != nullptr)
+            preorder(this->root->right);
+
         std::cout << order_str << std::endl;
         order_str.clear();
     }
@@ -614,7 +485,18 @@ class BinarySearchTree : public binarySearchTree<T> {
     void inorder()
     {
         //std::cout << "Inorder\n";
-        inorder(this->root);
+        
+        if(this->root->left != nullptr)
+            inorder(this->root->left);
+
+        if(order_str.length() == 0)
+            order_str += this->root->data;
+        else
+            order_str += "," + this->root->data;
+
+        if(this->root->right != nullptr)
+            inorder(this->root->right);
+
         std::cout << order_str << std::endl;
         order_str.clear();
     }
@@ -633,10 +515,35 @@ class BinarySearchTree : public binarySearchTree<T> {
             inorder(cur_node->right);
     }
 
+    void inorder_str(TreeNode<T> *cur_node, std::string &order_str)
+    {
+      if(cur_node->left != nullptr)
+        inorder_str(cur_node->left, order_str);
+
+      if(order_str.length() == 0)
+          order_str += cur_node->data;
+      else
+          order_str += "," + cur_node->data;
+
+      if(cur_node->right != nullptr)
+          inorder_str(cur_node->right, order_str);
+    }
+
     void postorder()
     {
          //std::cout << "Postorder\n";
-        postorder(this->root);
+        
+        if(this->root->left != nullptr)
+            postorder(this->root->left);
+
+        if(this->root->right != nullptr)
+            postorder(this->root->right);
+
+        if(order_str.length() == 0)
+            order_str += this->root->data;
+        else
+            order_str += "," + this->root->data;
+
         std::cout << order_str << std::endl;
         order_str.clear();
     }
@@ -735,6 +642,144 @@ class BinarySearchTree : public binarySearchTree<T> {
       }
     }
 
+    static bool isValidSerialization(std::string tree)
+    {
+      auto check_string_correct = [](std::string check)
+      {
+        if(check == "" || check == "NULLL" || check.find(" ") != std::string::npos)
+        {
+          //std::cout << "Check str:"<< check << "\nFalse\n";
+          return false;
+        }
+        else
+        {
+          //std::cout << "Check str:" << check << "\nTrue\n";
+          return true;
+        }
+      };
+
+      BinarySearchTree<std::string> test;
+
+      std::stringstream comma_split(tree);
+      std::string sub_str;
+      Queue<std::string> data_queue;
+      Queue<TreeNode<T>*> next_queue;
+
+      //字串最後方有逗號，則不是樹
+      if(tree[tree.length()-1] == ',')
+        return false;
+
+      //把字串分開，並轉成數字
+      while(std::getline(comma_split, sub_str, ','))
+      {
+        if(check_string_correct(sub_str))
+          data_queue.enqueue(sub_str);
+        else
+          return false;
+      }
+
+      std::string buf;
+      bool set_root = true;
+      while(!data_queue.isEmpty())
+      {
+        TreeNode<T>* cur_node;
+
+        //第一次放樹根
+        if(set_root)
+        {
+          test.setRoot(data_queue.dequeue());
+          set_root = false;
+
+          cur_node = test.root;
+          //std::cout << "root_node:" << cur_node->data << std::endl;
+        }
+        //之後的node
+        else
+        {
+          if(next_queue.isEmpty())
+            cur_node = 0;
+          else
+            cur_node = next_queue.dequeue();
+          //std::cout << "cur_node:" << cur_node->data << std::endl;
+        }
+
+        
+        //左node可放
+        if(!data_queue.isEmpty())
+        {
+          //std::cout << "Left\n";
+          if(!check_string_correct(buf = data_queue.dequeue()) || check_string_correct(buf) && cur_node == 0)
+            return false;
+
+          if(buf == "NULL")
+            cur_node->left = 0;
+          else
+          {
+            cur_node->left = new TreeNode<T>(buf);
+            next_queue.enqueue(cur_node->left);
+          }
+          //std::cout << "left node place:" << cur_node->left->data << std::endl;
+        }
+
+        
+        //右node可放
+        if(!data_queue.isEmpty())
+        {
+          //std::cout << "Right\n";
+          if(!check_string_correct(buf = data_queue.dequeue()) || check_string_correct(buf) && cur_node == 0)
+            return false;
+
+          if(buf == "NULL")
+            cur_node->right = 0;
+          else
+          {
+            cur_node->right = new TreeNode<T>(buf);
+            next_queue.enqueue(cur_node->right);
+          }
+          //std::cout << "right node place:" << cur_node->right->data << std::endl;
+        }
+      }
+
+      return true;
+    }
+
+    static bool isValidBinarySearchTree(std::string tree)
+    {
+      auto isnumber = [](std::string test)
+      {
+        for(auto it : test)
+        {
+          if(!('0' <= it && it <= '9'))
+            return false;
+        }
+        return true;
+      };
+      auto compare = [=](std::string a, std::string b)
+      {
+        if(isnumber(a) && isnumber(b))
+          return stoi(a) < stoi(b);
+        else
+          return a < b;
+      };
+
+      BinarySearchTree<std::string> check;
+      check.deSerialize(tree);
+      std::string order_str, buf, buf2;
+      check.inorder_str(check.root, order_str);
+
+      std::stringstream stream(order_str);
+      
+      std::getline(stream, buf, ',');
+      while(std::getline(stream, buf2, ','))
+      {
+        if(!compare(buf, buf2))
+          return false;
+        
+        buf = buf2;
+      }
+      
+      return true;
+    }
 
     std::string serialize()
     {
@@ -750,10 +795,6 @@ class BinarySearchTree : public binarySearchTree<T> {
           }
           else
           {
-            if(buf->parent != nullptr)
-              std::cout << buf->data << " parent:" << buf->parent->data << std::endl;
-            else
-              std::cout << buf->data << " parent:empty" << std::endl;
             if(order_str.length() == 0)
               order_str += buf->data;
             else
@@ -774,131 +815,25 @@ class BinarySearchTree : public binarySearchTree<T> {
       return return_str;
     }
 
-    void avl_rotate(TreeNode<T>*iter)
-    {
-      auto balance_factor = [=](TreeNode<T>*node)
-      {
-        return this->height(node->left) - this->height(node->right);
-      };
-
-      auto replace_parent = [](TreeNode<T>*old_node, TreeNode<T>*replace_node)
-      {
-        if(old_node->parent == nullptr)
-        {
-          replace_node->parent = nullptr;
-          return;
-        }
-
-        if(old_node->parent->left == old_node)
-        {
-          old_node->parent->left = replace_node;
-          replace_node->parent = old_node->parent;
-        }
-        else
-        {
-          old_node->parent->right = replace_node;
-          replace_node->parent = old_node->parent;
-        }
-      };
-
-      auto left_rotate = [=](TreeNode<T>*old_parent)
-      {
-        TreeNode<T> *new_parent = old_parent->right;
-        replace_parent(old_parent, new_parent);
-        old_parent->right = new_parent->left;
-        new_parent->left = old_parent;
-        old_parent->parent = new_parent;
-        //old_parent->right->parent = old_parent;
-
-        if(old_parent == this->root)
-          this->root = new_parent;
-      };
-
-      auto right_rotate = [=](TreeNode<T>*old_parent)
-      {
-        TreeNode<T> *new_parent = old_parent->left;
-        replace_parent(old_parent, new_parent);
-        old_parent->left = new_parent->right;
-        new_parent->right = old_parent;
-        old_parent->parent = new_parent;
-        //old_parent->left->parent = old_parent;
-
-        if(old_parent == this->root)
-          this->root = new_parent;
-      };
-
-      while(iter != nullptr)
-      {
-        if(balance_factor(iter) <= 1 && balance_factor(iter) >= -1)
-        {
-          iter = iter->parent;
-          continue;
-        }
-        //左邊過重
-        else if(balance_factor(iter) > 1)
-        {
-          //rl轉動
-          if(balance_factor(iter->left) <= -1)
-          {
-            std::cout << "rl rotate" << std::endl;
-            left_rotate(iter->left);
-            right_rotate(iter);
-          }
-          //r轉動
-          else
-          {
-            std::cout << "r rotate" << std::endl;
-            right_rotate(iter);
-          }
-        }
-        //右邊過重
-        else if(balance_factor(iter) < -1)
-        {
-          //lr轉動
-          if(balance_factor(iter->right) >= 1)
-          {
-            std::cout << "lr rotate" << std::endl;
-            right_rotate(iter->right);
-            left_rotate(iter);
-          }
-          //l轉動
-          else
-          {
-            std::cout << "l rotate" << std::endl;
-            left_rotate(iter);
-          }
-        }
-
-        std::cout << this->serialize() << std::endl;
-      }
-    }
-
 private:
     std::string order_str;
 };
 
 int main()
 {
-  freopen("input2.txt","r",stdin);
-  freopen("output.txt","w",stdout);
+  //freopen("input.txt","r",stdin);
+  //freopen("output.txt","w",stdout);
 
-  std::string operation, buf;
-  BinarySearchTree<std::string> tree;
-  while(std::cin >> operation)
+  std::string line, buf;
+  while(std::getline(std::cin, line))
   {
-    if(operation == "insert")
-    {
-      std::cin >> buf;
-      //std::cout << "insert:" << buf << std::endl;
-      tree.insert(buf);
-    }
-    else if(operation == "delete")
-    {
-      std::cin >> buf;
-      std::cout << "delete:" << buf << std::endl;
-      tree.Delete(buf);
-    }
+    BinarySearchTree<std::string> tree;
+    
+    if(!tree.isValidSerialization(line))
+      std::cout << "Serialization invalid\n";
+    else if(!tree.isValidBinarySearchTree(line))
+      std::cout << "Binary Search Tree invalid\n";
+    else
+      std::cout << "OK\n";
   }
-
-  std::cout << tree.serialize() << std::endl;
 }

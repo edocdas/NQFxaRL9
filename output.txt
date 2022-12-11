@@ -1,26 +1,48 @@
-remove root:[{"children":[{"data":"this is script","path":"script","type":"file"}],"path":"bin","type":"dir"},{"children":[],"path":"tmp","type":"dir"},{"children":[],"path":"usr","type":"dir"}]
-Current list
-{"children":[{"data":"this is script","path":"script","type":"file"}],"path":"bin","type":"dir"}
-Children:[{"data":"this is script","path":"script","type":"file"}]
-Data:
-Path:bin
-Type:dir
-Current list
-{"data":"this is script","path":"script","type":"file"}
-Children:
-Data:this is script
-Path:script
-Type:file
-Current list
-{"children":[],"path":"tmp","type":"dir"}
-Children:[]
-Data:
-Path:tmp
-Type:dir
-Current list
-{"children":[],"path":"usr","type":"dir"}
-Children:[]
-Data:
-Path:usr
-Type:dir
-{"root":{"children":[{"children":[{"data":"this is script","path":"script","type":"file"}],"path":"bin","type":"dir"},{"children":[],"path":"tmp","type":"dir"},{"children":[],"path":"usr","type":"dir"},{"children":[{"children":[{"children":[],"path":"","type":""}],"path":"","type":""}],"path":"","type":""}],"path":"/","type":"dir"}}
+rl rotate
+Matthew parent:empty
+Carl parent:Matthew
+Phil parent:Matthew
+Matthew,Carl,Phil
+lr rotate
+Matthew parent:empty
+Julia parent:Matthew
+Phil parent:Matthew
+Carl parent:Julia
+Mandel parent:Julia
+Matthew,Julia,Phil,Carl,Mandel
+r rotate
+Julia parent:empty
+Carl parent:Julia
+Matthew parent:Julia
+Harriet parent:Carl
+Mandel parent:Julia
+Phil parent:Matthew
+Julia,Carl,Matthew,NULL,Harriet,Mandel,Phil
+delete:Mattheww
+delete:Matthew
+Julia
+delete ser:Julia parent:empty
+Carl parent:Julia
+Matthew parent:Julia
+Harriet parent:Carl
+Mandel parent:Julia
+Phil parent:Matthew
+Julia,Carl,Matthew,NULL,Harriet,Mandel,Phil
+right parent unbind
+delete ser:Julia parent:empty
+Carl parent:Julia
+Harriet parent:Carl
+Julia,Carl,NULL,NULL,Harriet
+rl rotate
+Harriet parent:empty
+Carl parent:Harriet
+Julia parent:Harriet
+Harriet,Carl,Julia
+delete ser:Harriet parent:empty
+Carl parent:Harriet
+Julia parent:Harriet
+Harriet,Carl,Julia
+Harriet parent:empty
+Carl parent:Harriet
+Julia parent:Harriet
+Harriet,Carl,Julia
