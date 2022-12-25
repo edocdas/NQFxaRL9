@@ -1,6 +1,8 @@
 #include<iostream>
 #include<thread>
 #include<mutex>
+//https://shengyu7697.github.io/std-thread/
+//https://shengyu7697.github.io/std-mutex/
 
 std::mutex g_mutex;
 

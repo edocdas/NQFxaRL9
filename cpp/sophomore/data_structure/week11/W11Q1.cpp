@@ -616,10 +616,12 @@ public:
 	*/
 	static BinaryTree<T> *convertFromGeneralTree(Tree<T> *tree)
 	{
+		//樹是空的
     if(tree->getroot() == nullptr)
       return nullptr;
     
     BinaryTree<T>* bin_tree = new BinaryTree<T>();
+		//先放第一個
     bin_tree->insert(tree->getroot()->getData());
     if(tree->getroot()->getChildren() != nullptr)
       put_node(bin_tree->root, tree->getroot()->getChildren());
@@ -633,11 +635,13 @@ public:
     {
       BinaryTreeNode<T>*buf = new BinaryTreeNode<T>(iter->getData()->getData());
       std::cout << "node data:" << buf->getData() << std::endl;
+			//第一個放左
       if(iter == child->getHead())
       {
         node->setLeft(buf);
         node = node->getLeft();
       }
+			//之後都放右
       else
       {
         node->setRight(buf);
