@@ -11,7 +11,7 @@ void print_arr(T *arr, int size)
   std::cout << "\n";
 }
 
-const int max = 9;
+const int max = 7;
 
 //目前上限設定為9個node
 template<class T>
@@ -113,8 +113,8 @@ public:
 
     get_ee();
     get_le();
-    //print_arr(earliest_arr, max);
-    //print_arr(latest_arr, max);
+    print_arr(earliest_arr, max);
+    print_arr(latest_arr, max);
     get_crit_path();
 
   }
@@ -137,6 +137,11 @@ T weight_arr[max][max] = {0}, earliest_arr[max] = {0}, latest_arr[max] = {0};
 int main()
 {
   Graph<int> g;
+
+  //需要更改14行的max更改node數目，max就是目前圖的node總數目
+  /*
+
+  // max 為 9
   g.insert(0,1,6);
   g.insert(0,2,4);
   g.insert(0,3,5);
@@ -148,6 +153,18 @@ int main()
   g.insert(5,7,4);
   g.insert(6,8,2);
   g.insert(7,8,4);
+  */
+
+
+  // max 為 7
+  g.insert(0,1,3);
+  g.insert(0,2,8);
+  g.insert(1,3,5);
+  g.insert(3,4,4);
+  g.insert(2,4,2);
+  g.insert(3,5,2);
+  g.insert(4,5,5);
+  g.insert(5,6,3);
   std::cout << "insert complete\n";
   g.print_list();
 

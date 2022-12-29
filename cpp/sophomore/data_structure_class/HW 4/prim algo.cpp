@@ -77,13 +77,22 @@ public:
 			print_arr(predecessor, SIZE);
 		}
 
+    int sum = 0;
 		for(int i = 0;i < SIZE;i++)
 		{
 			if(i == 0)
+      {
 				std::cout << i << " to " << i << " weight:" << adjmatrix[i][i] << std::endl;
+        sum += adjmatrix[i][i];
+      }
 			else
+      {
 				std::cout << i << " to " << predecessor[i] << " weight:" << adjmatrix[i][predecessor[i]] << std::endl;
+        sum += adjmatrix[i][predecessor[i]];
+      }
 		}
+
+    std::cout << "total weight:" << sum << std::endl;
 	}
 
 	void print_adj()

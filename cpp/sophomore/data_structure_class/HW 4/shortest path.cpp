@@ -11,6 +11,7 @@ private:
      int length[nmax][nmax];
      int a[nmax][nmax];
      int dist[nmax];
+     int predecessor[nmax];
      Boolean s[nmax];
      int newdist[nmax];
 public:
@@ -23,7 +24,6 @@ public:
      void Setup2();
      void Setup3();
      void Setup4();
-     void Setup5();
      void Out(int);
      void OutA(int);
 };
@@ -31,18 +31,16 @@ public:
 void Graph::Out(int n)
 {
    cout << endl;
-   for (int i = 0; i < n; i++)
-    cout << dist[i] << ", ";
+   for (int i = 0; i < n; i++) cout << dist[i] << ", ";
    cout << endl;
 }
 
 void Graph::OutA(int n)
 {
-   cout << endl << "OutA n:" << n << endl;
+   cout << endl;
    for (int i = 0; i < n; i++)
    {
-      for (int j = 0; j < n; j++)
-        cout << a[i][j] << "  ";
+      for (int j = 0; j < n; j++) cout << a[i][j] << "  ";
       cout << endl;
    }
 }
@@ -116,41 +114,10 @@ void Graph::Setup4()
     length[1][2] = 2;
 
     length[2][0] = 3;
-
-    for(int i = 0;i < 3;i++)
-    {
-        for(int j = 0;j < 3;j++)
-            std::cout << length[i][j] << " ";
-        std::cout << "\n";
-    }
-        
-}
-
-void Graph::Setup5()
-{
-    for (int i = 0; i < 4; i++)
-	for (int j = 0; j < 4; j++)
-	    if (i == j) length[i][j] = 0; else length[i][j] = 10000;
-    length[0][1] = 4;
-    length[1][0] = 8;
-
-    length[1][3] = 0;
-    length[3][1] = 1;
-    length[3][2] = 0;
-
-    length[1][2] = 2;
-    length[2][0] = 4;
-
-    for(int i = 0;i < 3;i++)
-    {
-        for(int j = 0;j < 3;j++)
-            std::cout << length[i][j] << " ";
-        std::cout << "\n";
-    }
-        
 }
 
 void Graph::ShortestPath(const int n, const int v)
+
 {
     for (int i = 0; i < n; i++) {s[i] = FALSE; dist[i] = length[v][i];} // initialize
     s[v] = TRUE;
@@ -194,21 +161,61 @@ void Graph::BellmanFord(const int n, const int v)
   }
 }
 
-void Graph::BellmanFord2(const int n, const int v)
+void Graph::BellmanFord2(const int n_size, const int origin)
 // Single source all destination shortest paths with negative edge lengths
 {
-  for (int i = 0; i < n; i++) dist[i] = length[v][i]; // initialize @dist@
-  for (int k = 2 ; k <= n-1; k++)
+  for (int i = 0; i < n_size; i++)
   {
-   for (int l = 0; l < n; l++) newdist[l] = dist[l];
-   for (int u = 0; u < n ; u++)
-    if (u != v) {
-       for (int i = 0; i < n; i++)
-	 if ((u != i) && (length[i][u] < 10000))
-	   if (newdist[u] > dist[i] + length[i][u]) newdist[u] = dist[i] + length[i][u];
-    }
-   for (int i = 0; i < n; i++) dist[i] = newdist[i];
+    dist[i] = length[origin][i]; // initialize @dist@
+
+    if(dist[i] != 10000)
+      predecessor[i] = origin;
   }
+  for (int k = 2 ; k <= n_size-1; k++)
+  {
+   for (int l = 0; l < n_size; l++)
+    newdist[l] = dist[l];
+   for (int to = 0; to < n_size ; to++)
+    if (to != origin)
+    {
+       for (int from = 0; from < n_size; from++)
+	      if ((to != from) && (length[from][to] < 10000))
+	        if (newdist[to] > dist[from] + length[from][to])
+          {
+            newdist[to] = dist[from] + length[from][to];
+            predecessor[to] = from;
+          }
+    }
+   for (int i = 0; i < n_size; i++) dist[i] = newdist[i];
+  }
+
+  std::cout << "distance copare to node " << origin << "\n";
+  for(int i = 0;i < n_size;i++)
+    std::cout << dist[i] << " ";
+  std::cout << "\n\n";
+  std::cout << "each node predecessor\n";
+  for(int i = 0;i < n_size;i++)
+    std::cout << predecessor[i] << " ";
+  std::cout << "\n\n";
+
+  std::cout << "each node path:\n";
+  for(int i = 0;i < n_size;i++)
+  {
+    int pre_node = predecessor[i];
+    std::string path = std::to_string(i);
+    while(pre_node != origin)
+    {
+      path = std::to_string(pre_node) + "," + path;
+      pre_node = predecessor[pre_node];
+    }
+
+    std::cout << "from node " << origin << " to node " << i << "\n";
+    if(i == origin)
+      std::cout << path << "\n";
+    else
+      std::cout << origin << "," << path << "\n";
+  }
+  std::cout << "\n";
 }
 
 void Graph::AllLengths(const int n)
@@ -217,14 +224,13 @@ void Graph::AllLengths(const int n)
 {
     for (int i = 0; i < n; i++)
        for (int j = 0; j < n; j++)
-	      a[i][j] = length[i][j];   // copy @length@ into @a@
-
+	   a[i][j] = length[i][j];   // copy @length@ into @a@
     for (int k = 0; k < n; k++) {  // for a path with highest vertex index @k@
        OutA(n);
 
        for (int i = 0; i < n; i++)  // for all possible pairs of vertices
-	      for (int j = 0; j < n; j++)
-	        if ((a[i][k] + a[k][j]) < a[i][j]) a[i][j] = a[i][k] + a[k][j];
+	  for (int j = 0; j < n; j++)
+	      if ((a[i][k] + a[k][j]) < a[i][j]) a[i][j] = a[i][k] + a[k][j];
     }
     OutA(n);
 }
@@ -233,7 +239,17 @@ void Graph::AllLengths(const int n)
 
 int main()
 {
+  {
     Graph g;
-    g.Setup5();
-    g.AllLengths(4);
+    g.Setup3();
+    g.BellmanFord2(7, 0);
+  }
+
+  {
+    Graph g;
+    g.Setup4();
+    g.BellmanFord2(3, 0);
+    g.BellmanFord2(3, 1);
+    g.BellmanFord2(3, 2);
+  }
 }
